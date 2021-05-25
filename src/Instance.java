@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Iterator;
 
 
 public class Instance {
@@ -119,14 +120,38 @@ public class Instance {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		Instance instance = new Instance();
-		instance.readFile("pmed1v3.10.2.txt");
+		//instance.readFile("pmed1v3.10.2.txt");
+		instance.readFile("fichero1.txt");
 		System.out.println("V: " + instance.getV());
 		System.out.println("D: " + instance.getD().length);
 		System.out.println("W: " + instance.getW().length);
 		System.out.println("qCAP: " + instance.getqCapacity().length);
 		System.out.println("U: " + instance.getU().length);
 		System.out.println("q: " + instance.getQ().length);
-	
+		
+		Solution solution = new Solution();
+		solution.generateFacilities(instance);
+		System.out.println("Facilities: " + solution.getFacilities().size());
+		Iterator<Integer> iteratorFacilities = solution.getFacilities().iterator();
+		while(iteratorFacilities.hasNext()) {
+			Integer pointFac = iteratorFacilities.next();
+			System.out.print(pointFac + " ");
+		}
+		solution.assignClients(instance);
+		System.out.println("Clients: " + solution.getClients().size());
+		Iterator<Integer> iteratorClients = solution.getClients().iterator();
+		while(iteratorClients.hasNext()) {
+			Integer pointClient = iteratorClients.next();
+			System.out.print(pointClient + " ");
+		}
+		System.out.println();
+		
+		System.out.println("Partial Capacities: " + solution.getPartialCapacities().size());
+		Iterator<Integer> iteratorPartCap = solution.getPartialCapacities().iterator();
+		while(iteratorPartCap.hasNext()) {
+			Integer cap = iteratorPartCap.next();
+			System.out.print(cap + " ");
+		}
 	}
 
 }

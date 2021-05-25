@@ -54,21 +54,38 @@ public class Solution {
 		int [][] d = instance.getD();
 		int distance = 10000;
 		int facility = 0;
+		int [] facilityCapabilities = instance.getqCapacity();
+		int [] customerDemands = instance.getQ();
+		int partialCapFac = 0;
+		int indexPartCap = 0;
 		inicializePartialCap();
 		for(int i=0; i<clients.length; i++) {
 			if(clients[i] > 0) {
-				Iterator<Integer> iteratorFacilities = facilities.iterator();
-				while(iteratorFacilities.hasNext()) {
-					int pointFacility = iteratorFacilities.next();
-					int indexFacility = pointFacility -1; //Resto uno para acceder al indice en la matriz de distancias ya que los puntos empiezan en 1 no en 0
-					if(d[i][indexFacility] < distance) {
+				for(int j=0; j<this.facilities.size(); j++) {
+				//Iterator<Integer> iteratorFacilities = facilities.iterator();
+				//while(iteratorFacilities.hasNext()) {
+					//int pointFacility = iteratorFacilities.next();
+					//int indexFacility = pointFacility -1; //Resto uno para acceder al indice en la matriz de distancias ya que los puntos empiezan en 1 no en 0
+					
+					int pointFacility = this.facilities.get(j);
+					int indexFacility = pointFacility - 1;
+					if((d[i][indexFacility] < distance) && ((this.partialCapacities.get(j) + customerDemands[i]) <= facilityCapabilities[indexFacility])) {
 						distance = d[i][indexFacility];
 						facility = pointFacility;
-					}
+						partialCapFac = this.partialCapacities.get(j) + customerDemands[i];
+						indexPartCap = j;
+					} 
 				}
-				this.clients.add(facility);
+				if(!(facility == 0 && distance == 10000)) {
+					this.clients.add(facility);
+					this.partialCapacities.set(indexPartCap, partialCapFac);
+				} else {
+					this.clients.add(facility);
+				}
 			}
 			distance = 10000;
+			facility = 0;
+			partialCapFac = 0;
 		}
 	}
 	
