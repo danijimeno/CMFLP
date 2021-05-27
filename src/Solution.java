@@ -3,12 +3,14 @@ import java.util.Iterator;
 
 public class Solution {
 	
-	private ArrayList<Integer> facilities = new ArrayList<Integer>();
-	private ArrayList<Integer> clients = new ArrayList<Integer>();
-	private ArrayList<Integer> partialCapacities = new ArrayList<Integer>();
+	private ArrayList<Integer> facilities;
+	private ArrayList<Integer> clients;
+	private ArrayList<Integer> partialCapacities;
 	
 	public Solution() {
 		this.facilities = new ArrayList<>();
+		this.clients = new ArrayList<Integer>();
+		this.partialCapacities = new ArrayList<Integer>();
 	}
 	
 	public Solution(ArrayList<Integer> facilities) {
@@ -68,7 +70,7 @@ public class Solution {
 					//int indexFacility = pointFacility -1; //Resto uno para acceder al indice en la matriz de distancias ya que los puntos empiezan en 1 no en 0
 					
 					int pointFacility = this.facilities.get(j);
-					int indexFacility = pointFacility - 1;
+					int indexFacility = pointFacility - 1; //Resto uno para acceder al indice en la matriz de distancias ya que los puntos empiezan en 1 no en 0
 					if((d[i][indexFacility] < distance) && ((this.partialCapacities.get(j) + customerDemands[i]) <= facilityCapabilities[indexFacility])) {
 						distance = d[i][indexFacility];
 						facility = pointFacility;

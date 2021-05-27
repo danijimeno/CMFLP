@@ -1,7 +1,10 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 
 public class Instance {
@@ -116,6 +119,15 @@ public class Instance {
 			e.printStackTrace();
 		}
 	}
+	
+	public List<Client> getClientsSortedDescByWeight(){
+		List<Client> clients = new ArrayList<Client>();
+		for(int i=0; i<this.u.length; i++) {
+			clients.add(new Client(this.u[i], this.q[i], i+1));
+		}
+		Collections.sort(clients, Collections.reverseOrder()); //to sort them in descending order
+		return clients;
+	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -137,6 +149,8 @@ public class Instance {
 			Integer pointFac = iteratorFacilities.next();
 			System.out.print(pointFac + " ");
 		}
+		System.out.println();
+		
 		solution.assignClients(instance);
 		System.out.println("Clients: " + solution.getClients().size());
 		Iterator<Integer> iteratorClients = solution.getClients().iterator();
@@ -152,6 +166,14 @@ public class Instance {
 			Integer cap = iteratorPartCap.next();
 			System.out.print(cap + " ");
 		}
+		System.out.println();
+		
+		List<Client> clientes = instance.getClientsSortedDescByWeight();
+		for (Client c :clientes) {
+			System.out.println(c);
+		}
+		
+		//System.out.println(clientes);
 	}
 
 }
