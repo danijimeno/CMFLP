@@ -98,4 +98,23 @@ public class Solution {
 		}
 	}
 	
+	public float evaluateTheSolution(Instance instance) {
+		
+		//2 part
+		float totalSum = 0;
+		float [] clientWeights = instance.getU();
+		int [][] d = instance.getD();
+		for(int i=0; i<clientWeights.length; i++) {
+			if(clientWeights[i] > 0) {
+				if(this.clients.get(i) > 0) {
+					int pointFacility = this.clients.get(i);
+					int indexFacility = pointFacility - 1;
+					float partialSum = clientWeights[i] * d[i][indexFacility];
+					totalSum += partialSum;
+				}
+			}
+		}
+		return totalSum;
+	}
+	
 }

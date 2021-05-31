@@ -169,11 +169,14 @@ public class Instance {
 		System.out.println();
 		
 		List<Client> clientes = instance.getClientsSortedDescByWeight();
+		/*
 		for (Client c :clientes) {
 			System.out.println(c);
 		}
+		*/
+		System.out.println(clientes);
 		
-		//System.out.println(clientes);
+		System.out.println("Sumatorio parte clientes (parte 2): " + solution.evaluateTheSolution(instance));
 	}
 
 }
