@@ -1,15 +1,18 @@
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
 
 public class Solution {
 	
 	private ArrayList<Integer> facilities;
-	private ArrayList<Integer> clients;
+	private ArrayList<Integer> facilitiesAssignedtoClients;
 	private ArrayList<Integer> partialCapacities;
 	
 	public Solution() {
-		this.facilities = new ArrayList<>();
-		this.clients = new ArrayList<Integer>();
+		this.facilities = new ArrayList<Integer>();
+		this.facilitiesAssignedtoClients = new ArrayList<Integer>();
 		this.partialCapacities = new ArrayList<Integer>();
 	}
 	
@@ -24,13 +27,13 @@ public class Solution {
 	public void setFacilities(ArrayList<Integer> facilities) {
 		this.facilities = facilities;
 	}
-
-	public ArrayList<Integer> getClients() {
-		return clients;
+	
+	public ArrayList<Integer> getFacilitiesAssignedtoClients() {
+		return facilitiesAssignedtoClients;
 	}
 
-	public void setClients(ArrayList<Integer> clients) {
-		this.clients = clients;
+	public void setFacilitiesAssignedtoClients(ArrayList<Integer> facilitiesAssignedtoClients) {
+		this.facilitiesAssignedtoClients = facilitiesAssignedtoClients;
 	}
 
 	public ArrayList<Integer> getPartialCapacities() {
@@ -79,10 +82,48 @@ public class Solution {
 					} 
 				}
 				if(!(facility == 0 && distance == 10000)) {
-					this.clients.add(facility);
+					this.facilitiesAssignedtoClients.add(facility);
 					this.partialCapacities.set(indexPartCap, partialCapFac);
 				} else {
-					this.clients.add(facility);
+					this.facilitiesAssignedtoClients.add(facility);
+				}
+			}
+			distance = 10000;
+			facility = 0;
+			partialCapFac = 0;
+		}
+	}
+	
+	public void assignClientsOrdered(Instance instance, ArrayList<Integer> facilities) {
+		//float [] clients = instance.getU();
+		int [][] d = instance.getD();
+		int distance = 10000;
+		int facility = 0;
+		int [] facilityCapabilities = instance.getqCapacity();
+		//int [] customerDemands = instance.getQ();
+		List<Client> clientsOrdered = instance.getClientsSortedDescByWeight();
+		int partialCapFac = 0;
+		int indexPartCap = 0;
+		inicializePartialCap();
+		for(int i=0; i<clientsOrdered.size(); i++) {
+			if(clientsOrdered.get(i).getU() > 0) {
+				int pointClient = clientsOrdered.get(i).getPoint();
+				int indexClient = pointClient - 1;
+				for(int j=0; j<facilities.size(); j++) {
+					int pointFacility = facilities.get(j);
+					int indexFacility = pointFacility - 1; //Resto uno para acceder al indice en la matriz de distancias ya que los puntos empiezan en 1 no en 0
+					if((d[indexClient][indexFacility] < distance) && ((this.partialCapacities.get(j) + clientsOrdered.get(i).getQ()) <= facilityCapabilities[indexFacility])) {
+						distance = d[indexClient][indexFacility];
+						facility = pointFacility;
+						partialCapFac = this.partialCapacities.get(j) + clientsOrdered.get(i).getQ();
+						indexPartCap = j;
+					} 
+				}
+				if(!(facility == 0 && distance == 10000)) {
+					this.facilitiesAssignedtoClients.add(facility);
+					this.partialCapacities.set(indexPartCap, partialCapFac);
+				} else {
+					this.facilitiesAssignedtoClients.add(facility);
 				}
 			}
 			distance = 10000;
@@ -102,19 +143,53 @@ public class Solution {
 		
 		//2 part
 		float totalSum = 0;
-		float [] clientWeights = instance.getU();
+		//float [] clientWeights = instance.getU();
+		List<Client> clientsOrdered = instance.getClientsSortedDescByWeight();
 		int [][] d = instance.getD();
-		for(int i=0; i<clientWeights.length; i++) {
-			if(clientWeights[i] > 0) {
-				if(this.clients.get(i) > 0) {
-					int pointFacility = this.clients.get(i);
+		for(int i=0; i<clientsOrdered.size(); i++) {
+			if(clientsOrdered.get(i).getU() > 0) {
+				int pointClient = clientsOrdered.get(i).getPoint();
+				int indexClient = pointClient - 1;
+				if(this.facilitiesAssignedtoClients.get(i) > 0) {
+					int pointFacility = this.facilitiesAssignedtoClients.get(i);
 					int indexFacility = pointFacility - 1;
-					float partialSum = clientWeights[i] * d[i][indexFacility];
+					float partialSum = clientsOrdered.get(i).getU() * d[indexClient][indexFacility];
 					totalSum += partialSum;
 				}
 			}
 		}
 		return totalSum;
+	}
+	
+	public ArrayList<Integer> generateFacilitiesRandom(Instance instance) {
+		ArrayList<Integer> newFacilities = new ArrayList<Integer>();
+		int newPoint;
+		Random random = new Random();  
+		while((newFacilities.size() != this.facilities.size())){
+			newPoint = (random.nextInt(instance.getV()) + 1);
+			if(!newFacilities.contains(newPoint)) {
+				newFacilities.add(newPoint);
+				System.out.println(newPoint);
+			}
+		}
+		Collections.sort(newFacilities);
+		return newFacilities;
+	}
+	
+	public void changeOriginalFacToRandomOnes (Instance instance, ArrayList<Integer> facilitiesRandom) {
+		int[] wAux = instance.getW();
+		int[] qAux = instance.getqCapacity();
+		for(int i=0; i< facilitiesRandom.size(); i++) {
+			int pointFac = this.facilities.get(i);
+			int indexFac = pointFac - 1;
+			int indexFacRan = (facilitiesRandom.get(i) - 1);
+			wAux[indexFac] = 0;
+			qAux[indexFacRan] = qAux[indexFac];
+			wAux[indexFacRan] = 1;
+			qAux[indexFac] = 0;
+		}
+		instance.setW(wAux);
+		instance.setqCapacity(qAux);
 	}
 	
 }

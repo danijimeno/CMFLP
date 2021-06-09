@@ -151,9 +151,17 @@ public class Instance {
 		}
 		System.out.println();
 		
-		solution.assignClients(instance);
-		System.out.println("Clients: " + solution.getClients().size());
-		Iterator<Integer> iteratorClients = solution.getClients().iterator();
+		//solution.assignClients(instance);
+		solution.assignClientsOrdered(instance, solution.getFacilities());
+		System.out.println("Clients: " + solution.getFacilitiesAssignedtoClients().size());
+		
+		Iterator<Client> iteratorClientsOrd = instance.getClientsSortedDescByWeight().iterator();
+		while(iteratorClientsOrd.hasNext()) {
+			System.out.print(iteratorClientsOrd.next().getPoint() + " ");
+		}
+		System.out.println();
+		
+		Iterator<Integer> iteratorClients = solution.getFacilitiesAssignedtoClients().iterator();
 		while(iteratorClients.hasNext()) {
 			Integer pointClient = iteratorClients.next();
 			System.out.print(pointClient + " ");
@@ -168,6 +176,7 @@ public class Instance {
 		}
 		System.out.println();
 		
+		
 		List<Client> clientes = instance.getClientsSortedDescByWeight();
 		/*
 		for (Client c :clientes) {
@@ -177,6 +186,58 @@ public class Instance {
 		System.out.println(clientes);
 		
 		System.out.println("Sumatorio parte clientes (parte 2): " + solution.evaluateTheSolution(instance));
+		
+		/*
+		ArrayList<Integer> newPointFac = solution.moveFacilities(instance);
+		Iterator<Integer> iteratorNewFac = newPointFac.iterator();
+		while(iteratorNewFac.hasNext()) {
+			Integer pointFac = iteratorNewFac.next();
+			System.out.print(pointFac + " ");
+		}
+		System.out.println();
+		
+		/*
+		ArrayList<Integer> randomFacilities = solution.getRandomFacilities(instance);
+		System.out.println("--SALIDA ARRAY RANDOM FAC---");
+		for(Integer i : randomFacilities) {
+			System.out.println(i);
+		}
+		solution.changeFacAfterRandom(instance, randomFacilities);
+		
+		for(int i=0; i<instance.getW().length; i++) {
+			System.out.print(instance.getW()[i] + " ");
+		}
+		System.out.println();
+		for(int i=0; i<instance.getqCapacity().length; i++) {
+			System.out.print(instance.getqCapacity()[i] + " ");
+		}
+		System.out.println();
+		
+		
+		solution.assignClientsOrdered(instance, randomFacilities);
+		System.out.println("Clients: " + solution.getFacilitiesAssignedtoClients().size());
+		
+		Iterator<Client> iteratorClientsOrd1 = instance.getClientsSortedDescByWeight().iterator();
+		while(iteratorClientsOrd1.hasNext()) {
+			System.out.print(iteratorClientsOrd1.next().getPoint() + " ");
+		}
+		System.out.println();
+		
+		Iterator<Integer> iteratorClients1 = solution.getFacilitiesAssignedtoClients().iterator();
+		while(iteratorClients1.hasNext()) {
+			Integer pointClient = iteratorClients1.next();
+			System.out.print(pointClient + " ");
+		}
+		System.out.println();
+		
+		System.out.println("Partial Capacities: " + solution.getPartialCapacities().size());
+		Iterator<Integer> iteratorPartCap1 = solution.getPartialCapacities().iterator();
+		while(iteratorPartCap1.hasNext()) {
+			Integer cap = iteratorPartCap1.next();
+			System.out.print(cap + " ");
+		}
+		System.out.println();
+		*/
 	}
 
 }
