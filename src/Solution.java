@@ -139,13 +139,18 @@ public class Solution {
 		}
 	}
 	
-	public float evaluateTheSolution(Instance instance) {
-		
+	public float evaluateTheSolution(Instance instance, ArrayList<Integer> randomFacilities) {
+		int [][] d = instance.getD();
+		/*
+		//1 part
+		for(int j=0; j<this.facilities.size(); j++) {
+			originalPointFac = this.facilities.get(j);
+			originalIndexFac = originalPointFac - 1;
+		}*/
 		//2 part
 		float totalSum = 0;
 		//float [] clientWeights = instance.getU();
 		List<Client> clientsOrdered = instance.getClientsSortedDescByWeight();
-		int [][] d = instance.getD();
 		for(int i=0; i<clientsOrdered.size(); i++) {
 			if(clientsOrdered.get(i).getU() > 0) {
 				int pointClient = clientsOrdered.get(i).getPoint();
@@ -172,7 +177,6 @@ public class Solution {
 				System.out.println(newPoint);
 			}
 		}
-		Collections.sort(newFacilities);
 		return newFacilities;
 	}
 	
@@ -183,10 +187,12 @@ public class Solution {
 			int pointFac = this.facilities.get(i);
 			int indexFac = pointFac - 1;
 			int indexFacRan = (facilitiesRandom.get(i) - 1);
-			wAux[indexFac] = 0;
-			qAux[indexFacRan] = qAux[indexFac];
-			wAux[indexFacRan] = 1;
-			qAux[indexFac] = 0;
+			if(indexFac != indexFacRan) {
+				wAux[indexFac] = 0;
+				qAux[indexFacRan] = qAux[indexFac];
+				wAux[indexFacRan] = 1;
+				qAux[indexFac] = 0;
+			}
 		}
 		instance.setW(wAux);
 		instance.setqCapacity(qAux);

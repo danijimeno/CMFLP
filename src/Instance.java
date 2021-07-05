@@ -185,24 +185,15 @@ public class Instance {
 		*/
 		System.out.println(clientes);
 		
-		System.out.println("Sumatorio parte clientes (parte 2): " + solution.evaluateTheSolution(instance));
+		System.out.println("Sumatorio parte clientes (parte 2): " + solution.evaluateTheSolution(instance, null));
 		
-		/*
-		ArrayList<Integer> newPointFac = solution.moveFacilities(instance);
-		Iterator<Integer> iteratorNewFac = newPointFac.iterator();
-		while(iteratorNewFac.hasNext()) {
-			Integer pointFac = iteratorNewFac.next();
-			System.out.print(pointFac + " ");
-		}
-		System.out.println();
 		
-		/*
-		ArrayList<Integer> randomFacilities = solution.getRandomFacilities(instance);
+		ArrayList<Integer> randomFacilities = solution.generateFacilitiesRandom(instance);
 		System.out.println("--SALIDA ARRAY RANDOM FAC---");
 		for(Integer i : randomFacilities) {
 			System.out.println(i);
 		}
-		solution.changeFacAfterRandom(instance, randomFacilities);
+		solution.changeOriginalFacToRandomOnes(instance, randomFacilities);
 		
 		for(int i=0; i<instance.getW().length; i++) {
 			System.out.print(instance.getW()[i] + " ");
@@ -213,6 +204,9 @@ public class Instance {
 		}
 		System.out.println();
 		
+
+		solution.getFacilitiesAssignedtoClients().clear();
+		solution.getPartialCapacities().clear();
 		
 		solution.assignClientsOrdered(instance, randomFacilities);
 		System.out.println("Clients: " + solution.getFacilitiesAssignedtoClients().size());
@@ -237,7 +231,7 @@ public class Instance {
 			System.out.print(cap + " ");
 		}
 		System.out.println();
-		*/
+		
 	}
 
 }
