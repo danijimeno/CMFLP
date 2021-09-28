@@ -99,7 +99,7 @@ public class Solution {
 		int [][] d = instance.getD();
 		int distance = 10000;
 		int facility = 0;
-		int [] facilityCapabilities = instance.getqCapacity();
+		int [] facilityCapacities = instance.getqCapacity();
 		//int [] customerDemands = instance.getQ();
 		List<Client> clientsOrdered = instance.getClientsSortedDescByWeight();
 		int partialCapFac = 0;
@@ -112,7 +112,7 @@ public class Solution {
 				for(int j=0; j<facilities.size(); j++) {
 					int pointFacility = facilities.get(j);
 					int indexFacility = pointFacility - 1; //Resto uno para acceder al indice en la matriz de distancias ya que los puntos empiezan en 1 no en 0
-					if((d[indexClient][indexFacility] < distance) && ((this.partialCapacities.get(j) + clientsOrdered.get(i).getQ()) <= facilityCapabilities[indexFacility])) {
+					if((d[indexClient][indexFacility] < distance) && ((this.partialCapacities.get(j) + clientsOrdered.get(i).getQ()) <= facilityCapacities[indexFacility])) {
 						distance = d[indexClient][indexFacility];
 						facility = pointFacility;
 						partialCapFac = this.partialCapacities.get(j) + clientsOrdered.get(i).getQ();

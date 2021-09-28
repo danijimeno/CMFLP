@@ -128,6 +128,16 @@ public class Instance {
 		Collections.sort(clients, Collections.reverseOrder()); //to sort them in descending order
 		return clients;
 	}
+	
+	public ArrayList<Facility> getFacilities(){
+		ArrayList<Facility> facilities = new ArrayList<Facility>();
+		for(int i=0; i<this.w.length; i++) {
+			if((this.w[i] > 0) && (this.qCapacity[i] > 0)){
+				facilities.add(new Facility(this.w[i], this.qCapacity[i], i+1));
+			}
+		}
+		return facilities;
+	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -176,6 +186,9 @@ public class Instance {
 		}
 		System.out.println();
 		
+		System.out.println("Nueva manera de guardar las facilities con la clase Facility");
+		ArrayList<Facility> facilities = instance.getFacilities();
+		System.out.println(facilities);
 		
 		List<Client> clientes = instance.getClientsSortedDescByWeight();
 		/*
