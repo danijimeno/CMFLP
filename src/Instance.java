@@ -162,7 +162,9 @@ public class Instance {
 		System.out.println();
 		
 		//solution.assignClients(instance);
-		solution.assignClientsOrdered(instance, solution.getFacilities());
+		//solution.assignClientsOrdered(instance, solution.getFacilities());
+		ArrayList<Facility> facilities = instance.getFacilities();
+		solution.assignClientsOrdered(instance, facilities);
 		System.out.println("Clients: " + solution.getFacilitiesAssignedtoClients().size());
 		
 		Iterator<Client> iteratorClientsOrd = instance.getClientsSortedDescByWeight().iterator();
@@ -178,16 +180,8 @@ public class Instance {
 		}
 		System.out.println();
 		
-		System.out.println("Partial Capacities: " + solution.getPartialCapacities().size());
-		Iterator<Integer> iteratorPartCap = solution.getPartialCapacities().iterator();
-		while(iteratorPartCap.hasNext()) {
-			Integer cap = iteratorPartCap.next();
-			System.out.print(cap + " ");
-		}
-		System.out.println();
-		
 		System.out.println("Nueva manera de guardar las facilities con la clase Facility");
-		ArrayList<Facility> facilities = instance.getFacilities();
+		
 		System.out.println(facilities);
 		
 		List<Client> clientes = instance.getClientsSortedDescByWeight();
@@ -198,9 +192,10 @@ public class Instance {
 		*/
 		System.out.println(clientes);
 		
-		System.out.println("Sumatorio parte clientes (parte 2): " + solution.evaluateTheSolution(instance, null));
+		System.out.println("Sumatorio parte clientes (parte 2): " + solution.evaluateTheSolution(instance, facilities));
 		
 		
+		/*
 		ArrayList<Integer> randomFacilities = solution.generateFacilitiesRandom(instance);
 		System.out.println("--SALIDA ARRAY RANDOM FAC---");
 		for(Integer i : randomFacilities) {
@@ -244,7 +239,7 @@ public class Instance {
 			System.out.print(cap + " ");
 		}
 		System.out.println();
-		
+		*/
 	}
 
 }

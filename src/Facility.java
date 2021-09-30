@@ -5,12 +5,14 @@ public class Facility {
 	private int qCap; //capacities
 	private int originPoint;
 	private int newPoint;
+	private int partialCapacity;
 	
 	public Facility(int w, int q, int point) {
 		this.w = w;
 		this.qCap = q;
 		this.originPoint = point;
 		this.newPoint = -1;
+		this.partialCapacity = 0;
 	}
 
 	public int getW() {
@@ -29,17 +31,34 @@ public class Facility {
 		this.qCap = qCap;
 	}
 
-	public int getPoint() {
+	public int getOriginPoint() {
 		return originPoint;
 	}
 
-	public void setPoint(int point) {
-		this.originPoint = point;
+	public void setOriginPoint(int originPoint) {
+		this.originPoint = originPoint;
+	}
+
+	public int getNewPoint() {
+		return newPoint;
+	}
+
+	public void setNewPoint(int newPoint) {
+		this.newPoint = newPoint;
+	}
+
+	public int getPartialCapacity() {
+		return partialCapacity;
+	}
+
+	public void setPartialCapacity(int partialCapacity) {
+		this.partialCapacity = partialCapacity;
 	}
 
 	@Override
 	public String toString() {
-		return "Facility [w=" + this.w + ", qCap=" + this.qCap + ", originPoint=" + this.originPoint + ", newPoint=" + this.newPoint + "]";
+		return "Facility [w=" + this.w + ", qCap=" + this.qCap + ", originPoint=" + this.originPoint + ", newPoint=" + this.newPoint
+				+ ", partialCapacity=" + this.partialCapacity + "]";
 	}
 	
 
