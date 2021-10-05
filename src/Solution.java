@@ -93,7 +93,23 @@ public class Solution {
 		int partialSumFac = 0;
 		float partialSumClients = 0;
 		//1 part
-
+		for(int j=0; j<facilities.size(); j++) {
+			if(facilities.get(j).getNewPoint() != -1) {
+				int originalPointFac = facilities.get(j).getOriginPoint();
+				int originalIndexFac = originalPointFac - 1;
+				int displacedPointFac = facilities.get(j).getNewPoint();
+				int displacedIndexFac = displacedPointFac - 1;
+				partialSumFac = facilities.get(j).getW()*d[originalIndexFac][displacedIndexFac];
+				totalSum += partialSumFac;
+				System.out.println("IF Suma parcial Fac " + originalPointFac + "->" + displacedPointFac + ": "  + partialSumFac);
+			} else {
+				int originalPointFac = facilities.get(j).getOriginPoint();
+				int originalIndexFac = originalPointFac - 1;
+				partialSumFac = facilities.get(j).getW()*d[originalIndexFac][originalIndexFac];
+				totalSum += partialSumFac;
+				System.out.println("ELSE Suma parcial Fac " + originalPointFac + ": "  + partialSumFac);
+			}
+		}
 		//2 part
 		List<Client> clientsOrdered = instance.getClientsSortedDescByWeight();
 		for(int i=0; i<clientsOrdered.size(); i++) {
