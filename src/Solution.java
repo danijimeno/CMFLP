@@ -1,31 +1,30 @@
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 
 public class Solution {
 	
-	private ArrayList<Integer> facilities;
+	private ArrayList<Integer> pointsFacilities;
 	private ArrayList<Integer> facilitiesAssignedtoClients;
-	private ArrayList<Integer> partialCapacities;
+	private ArrayList<Facility> randomFacilities;
 	
 	public Solution() {
-		this.facilities = new ArrayList<Integer>();
+		this.pointsFacilities = new ArrayList<Integer>();
 		this.facilitiesAssignedtoClients = new ArrayList<Integer>();
-		this.partialCapacities = new ArrayList<Integer>();
+		this.randomFacilities = new ArrayList<Facility>();
 	}
 	
-	public Solution(ArrayList<Integer> facilities) {
-		this.facilities = facilities;
+	public Solution(ArrayList<Integer> pointsFacilities) {
+		this.pointsFacilities = pointsFacilities;
 	}
 	
-	public ArrayList<Integer> getFacilities() {
-		return facilities;
+	public ArrayList<Integer> getPointsFacilities() {
+		return pointsFacilities;
 	}
 
-	public void setFacilities(ArrayList<Integer> facilities) {
-		this.facilities = facilities;
+	public void setPointsFacilities(ArrayList<Integer> pointsFacilities) {
+		this.pointsFacilities = pointsFacilities;
 	}
 	
 	public ArrayList<Integer> getFacilitiesAssignedtoClients() {
@@ -36,12 +35,12 @@ public class Solution {
 		this.facilitiesAssignedtoClients = facilitiesAssignedtoClients;
 	}
 
-	public ArrayList<Integer> getPartialCapacities() {
-		return partialCapacities;
+	public ArrayList<Facility> getRandomFacilities() {
+		return randomFacilities;
 	}
 
-	public void setPartialCapacities(ArrayList<Integer> partialCapacities) {
-		this.partialCapacities = partialCapacities;
+	public void setRandomFacilities(ArrayList<Facility> randomFacilities) {
+		this.randomFacilities = randomFacilities;
 	}
 
 	public void generateFacilities(Instance instance) {
@@ -49,48 +48,8 @@ public class Solution {
 		for (int i=0; i<fac.length; i++) {
 			if(fac[i] > 0) {
 				int index = i + 1;
-				facilities.add(index);
+				pointsFacilities.add(index);
 			}
-		}
-	}
-	
-	public void assignClients(Instance instance) {
-		float [] clients = instance.getU();
-		int [][] d = instance.getD();
-		int distance = 10000;
-		int facility = 0;
-		int [] facilityCapabilities = instance.getqCapacity();
-		int [] customerDemands = instance.getQ();
-		int partialCapFac = 0;
-		int indexPartCap = 0;
-		inicializePartialCap();
-		for(int i=0; i<clients.length; i++) {
-			if(clients[i] > 0) {
-				for(int j=0; j<this.facilities.size(); j++) {
-				//Iterator<Integer> iteratorFacilities = facilities.iterator();
-				//while(iteratorFacilities.hasNext()) {
-					//int pointFacility = iteratorFacilities.next();
-					//int indexFacility = pointFacility -1; //Resto uno para acceder al indice en la matriz de distancias ya que los puntos empiezan en 1 no en 0
-					
-					int pointFacility = this.facilities.get(j);
-					int indexFacility = pointFacility - 1; //Resto uno para acceder al indice en la matriz de distancias ya que los puntos empiezan en 1 no en 0
-					if((d[i][indexFacility] < distance) && ((this.partialCapacities.get(j) + customerDemands[i]) <= facilityCapabilities[indexFacility])) {
-						distance = d[i][indexFacility];
-						facility = pointFacility;
-						partialCapFac = this.partialCapacities.get(j) + customerDemands[i];
-						indexPartCap = j;
-					} 
-				}
-				if(!(facility == 0 && distance == 10000)) {
-					this.facilitiesAssignedtoClients.add(facility);
-					this.partialCapacities.set(indexPartCap, partialCapFac);
-				} else {
-					this.facilitiesAssignedtoClients.add(facility);
-				}
-			}
-			distance = 10000;
-			facility = 0;
-			partialCapFac = 0;
 		}
 	}
 	
@@ -128,13 +87,6 @@ public class Solution {
 		}
 	}
 	
-	//Creo e inicializo las capacidades parciales de cada facility a 0
-	public void inicializePartialCap(){
-		for (int i=0; i< this.facilities.size(); i++) {
-			this.partialCapacities.add(0);
-		}
-	}
-	
 	public float evaluateTheSolution(Instance instance, ArrayList<Facility> facilities) {
 		int [][] d = instance.getD();
 		float totalSum = 0;
@@ -163,7 +115,7 @@ public class Solution {
 		ArrayList<Integer> newFacilities = new ArrayList<Integer>();
 		int newPoint;
 		Random random = new Random();  
-		while((newFacilities.size() != this.facilities.size())){
+		while((newFacilities.size() != this.pointsFacilities.size())){
 			newPoint = (random.nextInt(instance.getV()) + 1);
 			if(!newFacilities.contains(newPoint)) {
 				newFacilities.add(newPoint);
@@ -173,11 +125,20 @@ public class Solution {
 		return newFacilities;
 	}
 	
+	public void addRandomFacilitiesToOriginal (ArrayList<Integer> randomFacilitiesPoints, ArrayList<Facility> facilities) {
+		int point;
+		for(int i=0; i<randomFacilitiesPoints.size(); i++) {
+			point = randomFacilitiesPoints.get(i);
+			facilities.get(i).setNewPoint(point);
+			randomFacilities.add(new Facility(facilities.get(i).getW(), facilities.get(i).getqCap(), point));
+		}
+	}
+	
 	public void changeOriginalFacToRandomOnes (Instance instance, ArrayList<Integer> facilitiesRandom) {
 		int[] wAux = instance.getW();
 		int[] qAux = instance.getqCapacity();
 		for(int i=0; i< facilitiesRandom.size(); i++) {
-			int pointFac = this.facilities.get(i);
+			int pointFac = this.pointsFacilities.get(i);
 			int indexFac = pointFac - 1;
 			int indexFacRan = (facilitiesRandom.get(i) - 1);
 			if(indexFac != indexFacRan) {

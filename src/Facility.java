@@ -57,7 +57,7 @@ public class Facility {
 
 	@Override
 	public String toString() {
-		return "Facility [w=" + this.w + ", qCap=" + this.qCap + ", originPoint=" + this.originPoint + ", newPoint=" + this.newPoint
+		return "Facility [originPoint=" + this.originPoint + ", newPoint=" + this.newPoint + ", w=" + this.w + ", qCap=" + this.qCap 
 				+ ", partialCapacity=" + this.partialCapacity + "]";
 	}
 	

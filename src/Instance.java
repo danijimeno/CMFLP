@@ -153,16 +153,14 @@ public class Instance {
 		
 		Solution solution = new Solution();
 		solution.generateFacilities(instance);
-		System.out.println("Facilities: " + solution.getFacilities().size());
-		Iterator<Integer> iteratorFacilities = solution.getFacilities().iterator();
+		System.out.println("Facilities: " + solution.getPointsFacilities().size());
+		Iterator<Integer> iteratorFacilities = solution.getPointsFacilities().iterator();
 		while(iteratorFacilities.hasNext()) {
 			Integer pointFac = iteratorFacilities.next();
 			System.out.print(pointFac + " ");
 		}
 		System.out.println();
 		
-		//solution.assignClients(instance);
-		//solution.assignClientsOrdered(instance, solution.getFacilities());
 		ArrayList<Facility> facilities = instance.getFacilities();
 		solution.assignClientsOrdered(instance, facilities);
 		System.out.println("Clients: " + solution.getFacilitiesAssignedtoClients().size());
@@ -181,7 +179,6 @@ public class Instance {
 		System.out.println();
 		
 		System.out.println("Nueva manera de guardar las facilities con la clase Facility");
-		
 		System.out.println(facilities);
 		
 		List<Client> clientes = instance.getClientsSortedDescByWeight();
@@ -195,12 +192,30 @@ public class Instance {
 		System.out.println("Sumatorio parte clientes (parte 2): " + solution.evaluateTheSolution(instance, facilities));
 		
 		
-		/*
-		ArrayList<Integer> randomFacilities = solution.generateFacilitiesRandom(instance);
+		ArrayList<Integer> randomFacPoints = solution.generateFacilitiesRandom(instance);
 		System.out.println("--SALIDA ARRAY RANDOM FAC---");
-		for(Integer i : randomFacilities) {
+		for(Integer i : randomFacPoints) {
 			System.out.println(i);
 		}
+
+		solution.addRandomFacilitiesToOriginal(randomFacPoints, facilities);
+		System.out.println("Facilities random asignadas a las originales :");
+		System.out.println(facilities);
+		
+		System.out.println("-----------EVALUACION RANDOM FAC--------------");
+		solution.getFacilitiesAssignedtoClients().clear();
+		solution.assignClientsOrdered(instance, solution.getRandomFacilities());
+		Iterator<Integer> iteratorClients1 = solution.getFacilitiesAssignedtoClients().iterator();
+		while(iteratorClients1.hasNext()) {
+			Integer pointClient = iteratorClients1.next();
+			System.out.print(pointClient + " ");
+		}
+		System.out.println();
+		System.out.println("Sumatorio Solucion random: " + solution.evaluateTheSolution(instance, facilities));
+
+		System.out.println("Random FAC" + solution.getRandomFacilities());
+		
+		/*
 		solution.changeOriginalFacToRandomOnes(instance, randomFacilities);
 		
 		for(int i=0; i<instance.getW().length; i++) {
