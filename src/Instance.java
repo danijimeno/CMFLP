@@ -1,10 +1,20 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 
 public class Instance {
@@ -138,6 +148,7 @@ public class Instance {
 		}
 		return facilities;
 	}
+	
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -162,7 +173,15 @@ public class Instance {
 		System.out.println();
 		
 		ArrayList<Facility> facilities = instance.getFacilities();
+		long startTime = System.nanoTime();
+		long startMil = System.currentTimeMillis();
 		solution.assignClientsOrdered(instance, facilities);
+		long endTime = System.nanoTime();
+		long endMil = System.currentTimeMillis();
+		long time = endTime - startTime;
+		long mil = endMil - startMil;
+		System.out.println("Tiempo ejecución nanosegundos: " + time/1e6);
+		System.out.println("Tiempo ejecución milisegundos: " + mil);
 		System.out.println("Clients: " + solution.getFacilitiesAssignedtoClients().size());
 		
 		Iterator<Client> iteratorClientsOrd = instance.getClientsSortedDescByWeight().iterator();
@@ -182,16 +201,32 @@ public class Instance {
 		System.out.println(facilities);
 		
 		List<Client> clientes = instance.getClientsSortedDescByWeight();
-		/*
-		for (Client c :clientes) {
-			System.out.println(c);
-		}
-		*/
 		System.out.println(clientes);
 		
-		System.out.println("Sumatorio parte clientes (parte 2): " + solution.evaluateTheSolution(instance, facilities));
+		float summation = solution.evaluateTheSolution(instance, facilities);
 		
-		
+		System.out.println("Sumatorio parte clientes (parte 2): " + summation);
+
+		/*
+		ArrayList<Path> fiche = new ArrayList<>();
+        try {
+			Files.list(Paths.get("")).filter(Files::isRegularFile).forEach(x -> fiche.add(x.getFileName()));
+			DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(""));
+			for (Path p: stream) {
+				if(p.toFile().isDirectory()) {
+					System.out.println("DIR: " + p.getFileName());			
+				}else {
+					System.out.println("FICH: " + p.getFileName());
+				}
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+ 
+        System.out.println("----");
+        System.out.println(fiche); */
+		/*
 		ArrayList<Integer> randomFacPoints = solution.generateFacilitiesRandom(instance);
 		System.out.println("--SALIDA ARRAY RANDOM FAC---");
 		for(Integer i : randomFacPoints) {
@@ -214,7 +249,7 @@ public class Instance {
 		System.out.println("Sumatorio Solucion random: " + solution.evaluateTheSolution(instance, facilities));
 
 		System.out.println("Random FAC" + solution.getRandomFacilities());
-		
+		*/
 		/*
 		solution.changeOriginalFacToRandomOnes(instance, randomFacilities);
 		
