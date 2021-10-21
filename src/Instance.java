@@ -149,6 +149,65 @@ public class Instance {
 		return facilities;
 	}
 	
+	public void createCSVFile(){
+		FileWriter w = null;
+		BufferedWriter bw = null;
+		try {
+			w = new FileWriter("salida.csv");
+			bw = new BufferedWriter(w);
+			bw.write("Nombre de la instancia" + ";" + "Valor función objetivo" + ';' + "Tiempo de ejecución (ms)");
+			bw.newLine();
+		} catch (FileNotFoundException ex) {
+			System.err.println("El fichero no se puede crear");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.err.println("Error al escribir en fichero");
+		} finally {
+	        try {
+	            if (bw != null)
+	                bw.close();
+	            if (w != null)
+	                w.close();
+	        } catch (IOException ex) {
+	        	System.err.println("ERROR al cerrar el fichero");
+	            ex.printStackTrace();
+	        }
+	    }
+	}
+	
+	public void addDataToCSVFile(String name, float evaluationValue, long executionTime) {
+		FileWriter w = null;
+		PrintWriter pw = null;
+		try {
+			w = new FileWriter("salida.csv", true);
+			pw = new PrintWriter(w);
+			pw.print(name);
+			pw.print(";");
+			pw.printf("%.5f", evaluationValue);
+			pw.print(";");
+			Double time = (double)(executionTime/1e6);
+			pw.printf("%.5f", time);
+			pw.println();
+			pw.flush();
+		} catch (FileNotFoundException ex) {
+			System.err.println("El fichero no se puede crear");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.err.println("Error al escribir en fichero");
+		} finally {
+	        try {
+	            if (w != null)
+	                w.close();
+	            if (pw != null)
+	                pw.close();
+	        } catch (IOException ex) {
+	        	System.err.println("ERROR al cerrar el fichero");
+	            ex.printStackTrace();
+	        }
+	    }
+	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -206,7 +265,8 @@ public class Instance {
 		float summation = solution.evaluateTheSolution(instance, facilities);
 		
 		System.out.println("Sumatorio parte clientes (parte 2): " + summation);
-
+		instance.createCSVFile();
+		instance.addDataToCSVFile("fichero1.txt", summation, time);
 		/*
 		ArrayList<Path> fiche = new ArrayList<>();
         try {
@@ -225,7 +285,8 @@ public class Instance {
 		}
  
         System.out.println("----");
-        System.out.println(fiche); */
+        System.out.println(fiche); 
+        */
 		/*
 		ArrayList<Integer> randomFacPoints = solution.generateFacilitiesRandom(instance);
 		System.out.println("--SALIDA ARRAY RANDOM FAC---");
@@ -239,16 +300,24 @@ public class Instance {
 		
 		System.out.println("-----------EVALUACION RANDOM FAC--------------");
 		solution.getFacilitiesAssignedtoClients().clear();
+		long startTimeRan = System.nanoTime();
 		solution.assignClientsOrdered(instance, solution.getRandomFacilities());
+		long endTimeRan = System.nanoTime();
+		long timeRan = endTimeRan - startTimeRan;
+
 		Iterator<Integer> iteratorClients1 = solution.getFacilitiesAssignedtoClients().iterator();
 		while(iteratorClients1.hasNext()) {
 			Integer pointClient = iteratorClients1.next();
 			System.out.print(pointClient + " ");
 		}
 		System.out.println();
-		System.out.println("Sumatorio Solucion random: " + solution.evaluateTheSolution(instance, facilities));
+		float summationRandom = solution.evaluateTheSolution(instance, solution.getRandomFacilities());
+		System.out.println("Sumatorio Solucion random: " + summationRandom);
+		System.out.println("Tiempo ejecución random: " + timeRan/1e6);
 
 		System.out.println("Random FAC" + solution.getRandomFacilities());
+		
+		instance.addDataToCSVFile("Random", summationRandom, timeRan);
 		*/
 		/*
 		solution.changeOriginalFacToRandomOnes(instance, randomFacilities);
