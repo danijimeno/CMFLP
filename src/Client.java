@@ -4,6 +4,7 @@ public class Client implements Comparable<Client> {
 	private float u; //weight
 	private int q;	//demand
 	private int point;	//location
+	private Facility facility;
 	
 	public Client(float u, int q, int point) {
 		this.u = u;
@@ -11,6 +12,7 @@ public class Client implements Comparable<Client> {
 		this.point = point;
 	}
 
+	
 	public float getU() {
 		return u;
 	}
@@ -34,10 +36,18 @@ public class Client implements Comparable<Client> {
 	public void setPoint(int point) {
 		this.point = point;
 	}
+	
+	public Facility getFacility() {
+		return facility;
+	}
+
+	public void setFacility(Facility facility) {
+		this.facility = facility;
+	}
 
 	@Override
 	public String toString() {
-		return "Client [u=" + this.u + ", q=" + this.q + ", point=" + this.point + "]";
+		return "Client [p=" + this.point + ", u=" + this.u + ", q=" + this.q + ", Fac: " + this.facility + "]" + "\n";
 	}
 
 	@Override
@@ -48,6 +58,10 @@ public class Client implements Comparable<Client> {
 			return 0;
 		}
 		return -1;
+	}
+	
+	public void deleteFacility() {
+		this.facility = null;
 	}
 	
 	

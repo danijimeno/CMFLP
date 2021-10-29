@@ -1,20 +1,8 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Stream;
 
 
 public class Instance {
@@ -47,9 +35,11 @@ public class Instance {
 	public int[] getqCapacity() {
 		return qCapacity;
 	}
+
 	public float[] getU() {
 		return u;
 	}
+
 	public int[] getQ() {
 		return q;
 	}
@@ -65,9 +55,11 @@ public class Instance {
 	public void setqCapacity(int[] qCapacity) {
 		this.qCapacity = qCapacity;
 	}
+
 	public void setU(float[] u) {
 		this.u = u;
 	}
+
 	public void setQ(int[] q) {
 		this.q = q;
 	}
@@ -130,8 +122,8 @@ public class Instance {
 		}
 	}
 	
-	public List<Client> getClientsSortedDescByWeight(){
-		List<Client> clients = new ArrayList<Client>();
+	public ArrayList<Client> getClientsSortedDescByWeight(){
+		ArrayList<Client> clients = new ArrayList<Client>();
 		for(int i=0; i<this.u.length; i++) {
 			clients.add(new Client(this.u[i], this.q[i], i+1));
 		}
@@ -147,218 +139,6 @@ public class Instance {
 			}
 		}
 		return facilities;
-	}
-	
-	public void createCSVFile(){
-		FileWriter w = null;
-		BufferedWriter bw = null;
-		try {
-			w = new FileWriter("salida.csv");
-			bw = new BufferedWriter(w);
-			bw.write("Nombre de la instancia" + ";" + "Valor función objetivo" + ';' + "Tiempo de ejecución (ms)");
-			bw.newLine();
-		} catch (FileNotFoundException ex) {
-			System.err.println("El fichero no se puede crear");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.err.println("Error al escribir en fichero");
-		} finally {
-	        try {
-	            if (bw != null)
-	                bw.close();
-	            if (w != null)
-	                w.close();
-	        } catch (IOException ex) {
-	        	System.err.println("ERROR al cerrar el fichero");
-	            ex.printStackTrace();
-	        }
-	    }
-	}
-	
-	public void addDataToCSVFile(String name, float evaluationValue, long executionTime) {
-		FileWriter w = null;
-		PrintWriter pw = null;
-		try {
-			w = new FileWriter("salida.csv", true);
-			pw = new PrintWriter(w);
-			pw.print(name);
-			pw.print(";");
-			pw.printf("%.5f", evaluationValue);
-			pw.print(";");
-			Double time = (double)(executionTime/1e6);
-			pw.printf("%.5f", time);
-			pw.println();
-			pw.flush();
-		} catch (FileNotFoundException ex) {
-			System.err.println("El fichero no se puede crear");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.err.println("Error al escribir en fichero");
-		} finally {
-	        try {
-	            if (w != null)
-	                w.close();
-	            if (pw != null)
-	                pw.close();
-	        } catch (IOException ex) {
-	        	System.err.println("ERROR al cerrar el fichero");
-	            ex.printStackTrace();
-	        }
-	    }
-	}
-
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		Instance instance = new Instance();
-		//instance.readFile("pmed1v3.10.2.txt");
-		instance.readFile("fichero1.txt");
-		System.out.println("V: " + instance.getV());
-		System.out.println("D: " + instance.getD().length);
-		System.out.println("W: " + instance.getW().length);
-		System.out.println("qCAP: " + instance.getqCapacity().length);
-		System.out.println("U: " + instance.getU().length);
-		System.out.println("q: " + instance.getQ().length);
-		
-		Solution solution = new Solution();
-		solution.generateFacilities(instance);
-		System.out.println("Facilities: " + solution.getPointsFacilities().size());
-		Iterator<Integer> iteratorFacilities = solution.getPointsFacilities().iterator();
-		while(iteratorFacilities.hasNext()) {
-			Integer pointFac = iteratorFacilities.next();
-			System.out.print(pointFac + " ");
-		}
-		System.out.println();
-		
-		ArrayList<Facility> facilities = instance.getFacilities();
-		long startTime = System.nanoTime();
-		long startMil = System.currentTimeMillis();
-		solution.assignClientsOrdered(instance, facilities);
-		long endTime = System.nanoTime();
-		long endMil = System.currentTimeMillis();
-		long time = endTime - startTime;
-		long mil = endMil - startMil;
-		System.out.println("Tiempo ejecución nanosegundos: " + time/1e6);
-		System.out.println("Tiempo ejecución milisegundos: " + mil);
-		System.out.println("Clients: " + solution.getFacilitiesAssignedtoClients().size());
-		
-		Iterator<Client> iteratorClientsOrd = instance.getClientsSortedDescByWeight().iterator();
-		while(iteratorClientsOrd.hasNext()) {
-			System.out.print(iteratorClientsOrd.next().getPoint() + " ");
-		}
-		System.out.println();
-		
-		Iterator<Integer> iteratorClients = solution.getFacilitiesAssignedtoClients().iterator();
-		while(iteratorClients.hasNext()) {
-			Integer pointClient = iteratorClients.next();
-			System.out.print(pointClient + " ");
-		}
-		System.out.println();
-		
-		System.out.println("Nueva manera de guardar las facilities con la clase Facility");
-		System.out.println(facilities);
-		
-		List<Client> clientes = instance.getClientsSortedDescByWeight();
-		System.out.println(clientes);
-		
-		float summation = solution.evaluateTheSolution(instance, facilities);
-		
-		System.out.println("Sumatorio parte clientes (parte 2): " + summation);
-		instance.createCSVFile();
-		instance.addDataToCSVFile("fichero1.txt", summation, time);
-		/*
-		ArrayList<Path> fiche = new ArrayList<>();
-        try {
-			Files.list(Paths.get("")).filter(Files::isRegularFile).forEach(x -> fiche.add(x.getFileName()));
-			DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(""));
-			for (Path p: stream) {
-				if(p.toFile().isDirectory()) {
-					System.out.println("DIR: " + p.getFileName());			
-				}else {
-					System.out.println("FICH: " + p.getFileName());
-				}
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
- 
-        System.out.println("----");
-        System.out.println(fiche); 
-        */
-		/*
-		ArrayList<Integer> randomFacPoints = solution.generateFacilitiesRandom(instance);
-		System.out.println("--SALIDA ARRAY RANDOM FAC---");
-		for(Integer i : randomFacPoints) {
-			System.out.println(i);
-		}
-
-		solution.addRandomFacilitiesToOriginal(randomFacPoints, facilities);
-		System.out.println("Facilities random asignadas a las originales :");
-		System.out.println(facilities);
-		
-		System.out.println("-----------EVALUACION RANDOM FAC--------------");
-		solution.getFacilitiesAssignedtoClients().clear();
-		long startTimeRan = System.nanoTime();
-		solution.assignClientsOrdered(instance, solution.getRandomFacilities());
-		long endTimeRan = System.nanoTime();
-		long timeRan = endTimeRan - startTimeRan;
-
-		Iterator<Integer> iteratorClients1 = solution.getFacilitiesAssignedtoClients().iterator();
-		while(iteratorClients1.hasNext()) {
-			Integer pointClient = iteratorClients1.next();
-			System.out.print(pointClient + " ");
-		}
-		System.out.println();
-		float summationRandom = solution.evaluateTheSolution(instance, solution.getRandomFacilities());
-		System.out.println("Sumatorio Solucion random: " + summationRandom);
-		System.out.println("Tiempo ejecución random: " + timeRan/1e6);
-
-		System.out.println("Random FAC" + solution.getRandomFacilities());
-		
-		instance.addDataToCSVFile("Random", summationRandom, timeRan);
-		*/
-		/*
-		solution.changeOriginalFacToRandomOnes(instance, randomFacilities);
-		
-		for(int i=0; i<instance.getW().length; i++) {
-			System.out.print(instance.getW()[i] + " ");
-		}
-		System.out.println();
-		for(int i=0; i<instance.getqCapacity().length; i++) {
-			System.out.print(instance.getqCapacity()[i] + " ");
-		}
-		System.out.println();
-		
-
-		solution.getFacilitiesAssignedtoClients().clear();
-		solution.getPartialCapacities().clear();
-		
-		solution.assignClientsOrdered(instance, randomFacilities);
-		System.out.println("Clients: " + solution.getFacilitiesAssignedtoClients().size());
-		
-		Iterator<Client> iteratorClientsOrd1 = instance.getClientsSortedDescByWeight().iterator();
-		while(iteratorClientsOrd1.hasNext()) {
-			System.out.print(iteratorClientsOrd1.next().getPoint() + " ");
-		}
-		System.out.println();
-		
-		Iterator<Integer> iteratorClients1 = solution.getFacilitiesAssignedtoClients().iterator();
-		while(iteratorClients1.hasNext()) {
-			Integer pointClient = iteratorClients1.next();
-			System.out.print(pointClient + " ");
-		}
-		System.out.println();
-		
-		System.out.println("Partial Capacities: " + solution.getPartialCapacities().size());
-		Iterator<Integer> iteratorPartCap1 = solution.getPartialCapacities().iterator();
-		while(iteratorPartCap1.hasNext()) {
-			Integer cap = iteratorPartCap1.next();
-			System.out.print(cap + " ");
-		}
-		System.out.println();
-		*/
 	}
 
 }
