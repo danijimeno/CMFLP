@@ -3,12 +3,15 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
 public class Utils {
 	
@@ -75,27 +78,42 @@ public class Utils {
 	        }
 	    }
 	}
+	
+	public List<Path> listSourceFiles(String dir) throws IOException{
+		List<Path> result = new ArrayList<Path>();
+		try {
+			DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dir), "*.{txt}");
+			for (Path entry: stream) {
+				result.add(entry);
+			}
+			//stream.forEach(result::add);
+		} catch (DirectoryIteratorException e) {
+			e.printStackTrace();
+			throw e.getCause();
+		}
+		return result;
+	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		Instance instance = new Instance();
-		instance.readFile("fichero1.txt");
-		System.out.println("V: " + instance.getV());
-		System.out.println("D: " + instance.getD().length);
-		System.out.println("W: " + instance.getW().length);
-		System.out.println("qCAP: " + instance.getqCapacity().length);
-		System.out.println("U: " + instance.getU().length);
-		System.out.println("q: " + instance.getQ().length);
+		Instance instance1 = new Instance();
+		instance1.readFile("fichero1.txt");
+		System.out.println("V: " + instance1.getV());
+		System.out.println("D: " + instance1.getD().length);
+		System.out.println("W: " + instance1.getW().length);
+		System.out.println("qCAP: " + instance1.getqCapacity().length);
+		System.out.println("U: " + instance1.getU().length);
+		System.out.println("q: " + instance1.getQ().length);
 		
 		Solution solution = new Solution();
 		
-		ArrayList<Facility> facilities = instance.getFacilities();
-		ArrayList<Client> clientes = instance.getClientsSortedDescByWeight();
+		ArrayList<Facility> facilities = instance1.getFacilities();
+		ArrayList<Client> clientes = instance1.getClientsSortedDescByWeight();
 		
 		long startTime = System.nanoTime();
 		long startMil = System.currentTimeMillis();
-		solution.assignClientsOrdered(instance, facilities,clientes);
+		solution.assignClientsOrdered(instance1, facilities,clientes);
 		long endTime = System.nanoTime();
 		long endMil = System.currentTimeMillis();
 		long time = endTime - startTime;
@@ -128,13 +146,25 @@ public class Utils {
 			System.out.println(client.getPoint() + "->" + client.getFacility());
 		}
 		
-		double summation = solution.evaluateTheSolution(instance, facilities, clientes);
+		double summation = solution.evaluateTheSolution(instance1, facilities, clientes);
 		System.out.format("Total Sumatorio: %.5f ", summation);
 		System.out.println();
 		
+		
+		Utils u = new Utils();
+		List<Path> filePaths = new ArrayList<>();
+		try {
+			filePaths = u.listSourceFiles(ROUTE1);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		filePaths.forEach(x -> System.out.println(x.toString()));
+		
 
+		
+				
 		/*
-		ArrayList<Integer> randomFacPoints = solution.generateFacilitiesRandom(instance, facilities);
+		ArrayList<Integer> randomFacPoints = solution.generateFacilitiesRandom(instance1, facilities);
 		System.out.println("--SALIDA ARRAY RANDOM FAC---");
 		for(Integer i : randomFacPoints) {
 			System.out.println(i);
@@ -148,11 +178,11 @@ public class Utils {
 		
 		System.out.println("-----------EVALUACION RANDOM FAC--------------");
 		long startTimeRan = System.nanoTime();
-		solution.assignClientsOrdered(instance, facilities, clientes);
+		solution.assignClientsOrdered(instance1, facilities, clientes);
 		long endTimeRan = System.nanoTime();
 		long timeRan = endTimeRan - startTimeRan;
 
-		double summationRandom = solution.evaluateTheSolution(instance, facilities, clientes);
+		double summationRandom = solution.evaluateTheSolution(instance1, facilities, clientes);
 		System.out.println("Sumatorio Solucion random: " + summationRandom);
 		System.out.println("Tiempo ejecución random: " + timeRan/1e6);
 
@@ -180,13 +210,15 @@ public class Utils {
 			ArrayList<Path> archivos = new ArrayList<>();
 			stream.forEach(archivos::add);
 			archivos.forEach(x -> System.out.println(x.getFileName()));
-
 			
+			System.out.println("----------------------");
+			Files.list(Paths.get(ROUTE1)).filter(Files::isRegularFile).forEach(x -> System.out.println(x.getFileName()));
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}*/
+
 		/*
 		ArrayList<Path> fiche = new ArrayList<>();
         try {

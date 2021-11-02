@@ -10,6 +10,8 @@ public class Solution {
 	
 	public Solution() {
 		this.facilities = new ArrayList<Facility>();
+		this.totalSum = 0;
+		this.time = 0;
 	}
 
 
@@ -123,5 +125,4 @@ public class Solution {
 			fac.deleteAllClients();
 		}
 	}
-	
 }
