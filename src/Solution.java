@@ -13,6 +13,12 @@ public class Solution {
 		this.totalSum = 0;
 		this.time = 0;
 	}
+	
+	public Solution(Instance instance) {
+		this.facilities = instance.getFacilities();
+		this.totalSum = 0;
+		this.time = 0;
+	}
 
 
 	public ArrayList<Facility> getFacilities() {
@@ -40,7 +46,7 @@ public class Solution {
 	}
 
 
-	public void assignClientsOrdered(Instance instance, ArrayList<Facility> facilities, ArrayList<Client> clientsOrdered) {
+	public void assignClients(Instance instance, ArrayList<Client> clientsOrdered) {
 		int [][] d = instance.getD();
 		int distance = 10000;
 		int facility = 0;
@@ -71,7 +77,7 @@ public class Solution {
 		}
 	}
 	
-	public double evaluateTheSolution(Instance instance, ArrayList<Facility> facilities, ArrayList<Client> clientsOrdered) {
+	public double evaluateTheSolution(Instance instance, ArrayList<Client> clientsOrdered) {
 		int [][] d = instance.getD();
 		double totalSum = 0;
 		int partialSumFac = 0;
@@ -101,28 +107,39 @@ public class Solution {
 		return totalSum;
 	}
 	
-	public ArrayList<Integer> generateFacilitiesRandom(Instance instance, ArrayList<Facility> facilities) {
+	public ArrayList<Integer> generateFacilitiesRandom(Instance instance) {
 		ArrayList<Integer> newFacilities = new ArrayList<Integer>();
 		int newPoint = 0;
 		Random random = new Random();  
 		while((newFacilities.size() != facilities.size())){
 			newPoint = (random.nextInt(instance.getV()) + 1);
 			if(!newFacilities.contains(newPoint)) {
-				newFacilities.add(newPoint);
+				newFacilities.add(newPoint);			
 			}
 		}
 		return newFacilities;
 	}
 	
-	public void addRandomFacilitiesToOriginal (ArrayList<Integer> randomFacilitiesPoints, ArrayList<Facility> facilities) {
+	public void addRandomFacilitiesToOriginal (Instance instance) {
 		int point = 0;
+		ArrayList<Integer> randomFacilitiesPoints = this.generateFacilitiesRandom(instance);
 		for(int i=0; i<randomFacilitiesPoints.size(); i++) {
 			point = randomFacilitiesPoints.get(i);
 			facilities.get(i).setCurrentPoint(point);
+			//se quitan los clientes asignados en la evaluación inicial para la posterior evaluación de las fac random
+			facilities.get(i).deleteAllClients();
 		}
-		//se quitan los clientes asignados en la evaluación inicial para la posterior evaluación de las fac random
-		for(Facility fac : facilities) {
-			fac.deleteAllClients();
-		}
+	}
+	
+	public void calculateSolution(Instance instance, ArrayList<Client> clientsOrdered) {
+		long startTime = System.nanoTime();
+		this.assignClients(instance, clientsOrdered);
+		long endTime = System.nanoTime();
+		long time = endTime - startTime;
+		
+		double executionTime = (double) time/1e6; //ns -> ms
+		double summation = this.evaluateTheSolution(instance, clientsOrdered);
+		this.setTime(executionTime);
+		this.setTotalSum(summation);
 	}
 }

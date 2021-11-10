@@ -74,7 +74,7 @@ public class Facility {
 		//clients.stream().forEach(client -> client.deleteFacility())
 		clients.stream().forEach(Client::deleteFacility);
 		clients.clear();
-		this.partialCapacity = 0;
+		this.setPartialCapacity(0);
 	}
 
 	@Override
