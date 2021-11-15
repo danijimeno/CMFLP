@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collections;
 
 
 public class Instance {
@@ -33,9 +35,11 @@ public class Instance {
 	public int[] getqCapacity() {
 		return qCapacity;
 	}
+
 	public float[] getU() {
 		return u;
 	}
+
 	public int[] getQ() {
 		return q;
 	}
@@ -51,9 +55,11 @@ public class Instance {
 	public void setqCapacity(int[] qCapacity) {
 		this.qCapacity = qCapacity;
 	}
+
 	public void setU(float[] u) {
 		this.u = u;
 	}
+
 	public void setQ(int[] q) {
 		this.q = q;
 	}
@@ -115,18 +121,24 @@ public class Instance {
 			e.printStackTrace();
 		}
 	}
-
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		Instance instance = new Instance();
-		instance.readFile("pmed1v3.10.2.txt");
-		System.out.println("V: " + instance.getV());
-		System.out.println("D: " + instance.getD().length);
-		System.out.println("W: " + instance.getW().length);
-		System.out.println("qCAP: " + instance.getqCapacity().length);
-		System.out.println("U: " + instance.getU().length);
-		System.out.println("q: " + instance.getQ().length);
 	
+	public ArrayList<Client> getClientsSortedDescByWeight(){
+		ArrayList<Client> clients = new ArrayList<Client>();
+		for(int i=0; i<this.u.length; i++) {
+			clients.add(new Client(this.u[i], this.q[i], i+1));
+		}
+		Collections.sort(clients, Collections.reverseOrder()); //to sort them in descending order
+		return clients;
+	}
+	
+	public ArrayList<Facility> getFacilities(){
+		ArrayList<Facility> facilities = new ArrayList<Facility>();
+		for(int i=0; i<this.w.length; i++) {
+			if((this.w[i] > 0) && (this.qCapacity[i] > 0)){
+				facilities.add(new Facility(this.w[i], this.qCapacity[i], i+1));
+			}
+		}
+		return facilities;
 	}
 
 }
