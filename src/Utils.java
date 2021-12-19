@@ -111,18 +111,7 @@ public class Utils {
 		ArrayList<Client> clientes = instance1.getClientsSortedDescByWeight();
 		
 		Solution initialSolution = new Solution(instance1);
-		/*
-		long startTime = System.nanoTime();
-		long startMil = System.currentTimeMillis();
-		initialSolution.assignClients(instance1,clientes);
-		long endTime = System.nanoTime();
-		long endMil = System.currentTimeMillis();
-		long time = endTime - startTime;
-		long mil = endMil - startMil;
-		System.out.println("Tiempo ejecución nanosegundos: " + time/1e6);
-		System.out.println("Tiempo ejecución milisegundos: " + mil);
-		*/
-		/*
+		
 		initialSolution.calculateSolution(instance1, clientes);
 		
 		Iterator<Client> iteratorClientsOrd = clientes.iterator();
@@ -156,7 +145,12 @@ public class Utils {
 		
 		
 		System.out.println("Array solution: " + initialSolution.getFacilities());
-		*/
+		
+		LocalSearch ls = new LocalSearch();
+		ls.solve(instance1, initialSolution);
+		
+		
+		//initialSolution.getFacilities().get(0).getClients().get(1).deleteFacility();
 		
 		/*
 		ArrayList<Integer> randomFacPoints = initialSolution.generateFacilitiesRandom(instance1, facilities);
@@ -186,7 +180,7 @@ public class Utils {
 		System.out.println(clientes);
 		*/
 		
-
+		
 		Utils u = new Utils();
 		List<Path> filePaths1 = new ArrayList<Path>();
 		List<Path> filePaths2 = new ArrayList<Path>();
@@ -220,12 +214,16 @@ public class Utils {
 			Solution solution = new Solution(instance);
 			solution.calculateSolution(instance, clients);
 			
-			System.out.println("Tiempo ejecución nanosegundos: " + solution.getTime());
+			System.out.println("Tiempo ejecución milisegundos: " + solution.getTime());
 			System.out.println("Sumatorio: " + solution.getTotalSum());
 			
 			String nameFile = filePaths.get(i).getFileName().toString();
 			u.addDataToCSVFile(nameFile, solution);
 			
+			LocalSearch local = new LocalSearch();
+			Solution localSol = local.solve(instance, solution);
+			System.out.println("Búsqueda local: " + localSol.getTotalSum());
+			/*
 			for(int j=0; j<100; j++) {
 				//ArrayList<Client> cli = instance.getClientsSortedDescByWeight();
 				Solution randomSolution = new Solution(instance);
@@ -237,7 +235,7 @@ public class Utils {
 				
 				String ranNameFile = "Ran" + j + nameFile;
 				u.addDataToCSVFile(ranNameFile, randomSolution);
-			}
+			}*/
 		}
 		
 	}

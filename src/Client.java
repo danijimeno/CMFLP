@@ -11,8 +11,14 @@ public class Client implements Comparable<Client> {
 		this.q = q;
 		this.point = point;
 	}
-
 	
+	public Client(Client c) {
+		this.u = c.getU();
+		this.q = c.getQ();
+		this.point = c.getPoint();
+	}
+
+
 	public float getU() {
 		return u;
 	}

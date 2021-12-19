@@ -8,18 +8,20 @@ public class Solution {
 	private double totalSum;
 	private double time;
 	
-	public Solution() {
-		this.facilities = new ArrayList<Facility>();
-		this.totalSum = 0;
-		this.time = 0;
-	}
-	
 	public Solution(Instance instance) {
 		this.facilities = instance.getFacilities();
 		this.totalSum = 0;
 		this.time = 0;
 	}
-
+	
+	public Solution(Solution solution) {
+		this.facilities = new ArrayList<Facility>();
+		for(Facility fac: solution.getFacilities()) {
+			this.facilities.add(new Facility(fac));
+		}
+		this.totalSum = solution.getTotalSum();
+		this.time = solution.getTime();
+	}
 
 	public ArrayList<Facility> getFacilities() {
 		return facilities;
