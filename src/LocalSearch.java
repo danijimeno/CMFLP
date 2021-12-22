@@ -67,6 +67,8 @@ public class LocalSearch {
 		
 		double executionTime = (double) time/1e6; //ns -> ms
 		System.out.println("Tiempo Busq Local: " + executionTime);
+		bestAuxSolution.setTime(executionTime);
+		//System.out.println("Tiempo SOL devuelta " + bestAuxSolution.getTime());
 		return bestAuxSolution;
 	}
 }

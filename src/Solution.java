@@ -136,12 +136,38 @@ public class Solution {
 	public void calculateSolution(Instance instance, ArrayList<Client> clientsOrdered) {
 		long startTime = System.nanoTime();
 		this.assignClients(instance, clientsOrdered);
+		double summation = this.evaluateTheSolution(instance, clientsOrdered);
 		long endTime = System.nanoTime();
 		long time = endTime - startTime;
 		
 		double executionTime = (double) time/1e6; //ns -> ms
-		double summation = this.evaluateTheSolution(instance, clientsOrdered);
+		//double summation = this.evaluateTheSolution(instance, clientsOrdered);
 		this.setTime(executionTime);
 		this.setTotalSum(summation);
+	}
+	
+	public Solution getTheLeastSolution(ArrayList<Solution> solutions) {
+		Solution sol = this;
+		for(int i=0; i<solutions.size(); i++) {
+			if(solutions.get(i).getTotalSum() < sol.getTotalSum()) {
+				sol = solutions.get(i);
+			}
+		}
+		return sol;
+	}
+	
+	public double calculateDeviationFromTheBestSol(Solution bestSolution) {
+		double best = bestSolution.getTotalSum();
+		double objectiveFunction = this.getTotalSum();
+		double dev = Math.abs((best - objectiveFunction)/best);
+		return dev;
+	}
+	
+	public Solution whichIsBetter(Solution solution) {
+		return (this.getTotalSum() < solution.getTotalSum())?this:solution;
+	}
+	
+	public int isTheBest(Solution bestSolution) {
+		return (this==bestSolution)?1:0;
 	}
 }

@@ -18,7 +18,8 @@ public class Utils {
 	
 	protected final static String ROUTE1 = "instance\\homogeneous_facilities\\large_C_over_F";
 	protected final static String ROUTE2 = "instance\\homogeneous_facilities\\small_C_over_F";
-	protected final static String OUTPUT_NAME_FILE = "salida.csv";
+	protected final static String OUTPUT_NAME_FILE = "salida-ls.csv";
+	protected final static int NUMBER_RANDOM = 100;
 	
 	public void createCSVFile(){
 		FileWriter w = null;
@@ -26,7 +27,10 @@ public class Utils {
 		try {
 			w = new FileWriter(OUTPUT_NAME_FILE);
 			bw = new BufferedWriter(w);
-			bw.write("Nombre de la instancia" + ";" + "Valor función objetivo" + ';' + "Tiempo de ejecución (ms)");
+			bw.write("" + ';' + "Constructivo" + ';' + "" + ';' + "" + ';' + "" + ';' + "Búsqueda Local" + ';');
+			bw.write("\n");
+			bw.write("Nombre de la instancia" + ";" + "F.O." + ';' + "Tiempo (s)" + ';' + "Dev (%)" + ';' + "#Best");
+			bw.write(';' + "F.O." + ';' + "Tiempo (s)" + ';' + "Dev (%)" + ';' + "#Best" + ';' + "" + ';' + "Best");
 			bw.newLine();
 		} catch (FileNotFoundException ex) {
 			System.err.println("El fichero no se puede crear");
@@ -47,7 +51,7 @@ public class Utils {
 	    }
 	}
 	
-	public void addDataToCSVFile(String name, Solution solution) {
+	public void addDataToCSVFile(String name, Solution solution, Solution localSearchSol, Solution bestSolution) {
 		FileWriter w = null;
 		PrintWriter pw = null;
 		try {
@@ -57,11 +61,28 @@ public class Utils {
 			pw.print(";");
 			pw.printf("%.5f", solution.getTotalSum());
 			pw.print(";");
-			pw.printf("%.5f", solution.getTime());
+			pw.printf("%.7f", solution.getTime()/1000); //ms->s
+			pw.print(";");
+			pw.printf("%.5f", solution.calculateDeviationFromTheBestSol(bestSolution));
+			pw.print(";");
+			pw.print(solution.isTheBest(bestSolution));
+			pw.print(";");
+			pw.printf("%.5f", localSearchSol.getTotalSum());
+			pw.print(";");
+			double time = ((localSearchSol.getTime()/1000) + (solution.getTime()/1000));
+			pw.printf("%.7f", time);
+			pw.print(";");
+			pw.printf("%.5f", localSearchSol.calculateDeviationFromTheBestSol(bestSolution));
+			pw.print(";");
+			pw.print(localSearchSol.isTheBest(bestSolution));
+			pw.print(";");
+			pw.print("");
+			pw.print(";");
+			pw.printf("%.5f", bestSolution.getTotalSum());
 			pw.println();
 			pw.flush();
 		} catch (FileNotFoundException ex) {
-			System.err.println("El fichero no se puede crear");
+			System.err.println("El fichero no se puede editar");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -218,24 +239,33 @@ public class Utils {
 			System.out.println("Sumatorio: " + solution.getTotalSum());
 			
 			String nameFile = filePaths.get(i).getFileName().toString();
-			u.addDataToCSVFile(nameFile, solution);
+
+			LocalSearch localSearch = new LocalSearch();
+			Solution lsSolution = localSearch.solve(instance, solution);
+			System.out.println("Búsqueda local: " + lsSolution.getTotalSum());
 			
-			LocalSearch local = new LocalSearch();
-			Solution localSol = local.solve(instance, solution);
-			System.out.println("Búsqueda local: " + localSol.getTotalSum());
-			/*
-			for(int j=0; j<100; j++) {
+			Solution bestSolution = solution.whichIsBetter(lsSolution);
+			
+			u.addDataToCSVFile(nameFile, solution, lsSolution, bestSolution);
+			
+			for(int j=0; j<NUMBER_RANDOM; j++) {
 				//ArrayList<Client> cli = instance.getClientsSortedDescByWeight();
 				Solution randomSolution = new Solution(instance);
 				randomSolution.addRandomFacilitiesToOriginal(instance);
 				randomSolution.calculateSolution(instance, clients);
 				
-				System.out.println("Tiempo ejecución nanosegundos: " + randomSolution.getTime());
+				LocalSearch localSearchRand = new LocalSearch();
+				Solution lsRandSolution = localSearchRand.solve(instance, randomSolution);
+				
+				System.out.println("Tiempo ejecución milisegundos: " + randomSolution.getTime());
 				System.out.println("Sumatorio: " + randomSolution.getTotalSum());
 				
+				Solution bestSol = randomSolution.whichIsBetter(lsRandSolution);
+				
 				String ranNameFile = "Ran" + j + nameFile;
-				u.addDataToCSVFile(ranNameFile, randomSolution);
-			}*/
+				u.addDataToCSVFile(ranNameFile, randomSolution, lsRandSolution, bestSol);
+				
+			}
 		}
 		
 	}
