@@ -122,7 +122,7 @@ public class Solution {
 		return newFacilities;
 	}
 	
-	public void addRandomFacilitiesToOriginal (Instance instance) {
+	public void addRandomFacilitiesToOriginal(Instance instance) {
 		int point = 0;
 		ArrayList<Integer> randomFacilitiesPoints = this.generateFacilitiesRandom(instance);
 		for(int i=0; i<randomFacilitiesPoints.size(); i++) {
@@ -141,19 +141,8 @@ public class Solution {
 		long time = endTime - startTime;
 		
 		double executionTime = (double) time/1e6; //ns -> ms
-		//double summation = this.evaluateTheSolution(instance, clientsOrdered);
 		this.setTime(executionTime);
 		this.setTotalSum(summation);
-	}
-	
-	public Solution getTheLeastSolution(ArrayList<Solution> solutions) {
-		Solution sol = this;
-		for(int i=0; i<solutions.size(); i++) {
-			if(solutions.get(i).getTotalSum() < sol.getTotalSum()) {
-				sol = solutions.get(i);
-			}
-		}
-		return sol;
 	}
 	
 	public double calculateDeviationFromTheBestSol(Solution bestSolution) {

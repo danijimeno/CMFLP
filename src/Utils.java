@@ -22,6 +22,7 @@ public class Utils {
 	protected final static int NUMBER_RANDOM = 100;
 	
 	public void createCSVFile(){
+		String fields = "F.O." + ';' + "Tiempo (s)" + ';' + "Dev (%)" + ';' + "#Best";
 		FileWriter w = null;
 		BufferedWriter bw = null;
 		try {
@@ -29,8 +30,8 @@ public class Utils {
 			bw = new BufferedWriter(w);
 			bw.write("" + ';' + "Constructivo" + ';' + "" + ';' + "" + ';' + "" + ';' + "Búsqueda Local" + ';');
 			bw.write("\n");
-			bw.write("Nombre de la instancia" + ";" + "F.O." + ';' + "Tiempo (s)" + ';' + "Dev (%)" + ';' + "#Best");
-			bw.write(';' + "F.O." + ';' + "Tiempo (s)" + ';' + "Dev (%)" + ';' + "#Best" + ';' + "" + ';' + "Best");
+			bw.write("Nombre de la instancia" + ";" + fields + ';' + fields);
+			bw.write(';' + "" + ';' + "Best");
 			bw.newLine();
 		} catch (FileNotFoundException ex) {
 			System.err.println("El fichero no se puede crear");
@@ -216,18 +217,11 @@ public class Utils {
 		filePaths2.forEach(x -> System.out.println(x.toString()));
 		
 		List<Path> filePaths = Stream.concat(filePaths1.stream(), filePaths2.stream()).collect(Collectors.toList());
-		
-		ArrayList<Instance> instances = new ArrayList<>();
-		for(int i=0; i<filePaths.size(); i++) {
-			Instance ins = new Instance();
-			instances.add(ins);
-		}
-		System.out.println("Instancias: " + instances.size());
-		
+
 		u.createCSVFile();
 		
-		for(int i=0; i<instances.size(); i++) {
-			Instance instance = instances.get(i);
+		for(int i=0; i<filePaths.size(); i++) {
+			Instance instance = new Instance();
 			String pathFile = filePaths.get(i).toString();
 			instance.readFile(pathFile);
 			ArrayList<Client> clients = instance.getClientsSortedDescByWeight();
