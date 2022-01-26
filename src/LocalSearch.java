@@ -3,7 +3,6 @@ import java.util.ArrayList;
 public class LocalSearch {
 
 	public Solution solve(Instance instance, Solution sol) {
-		long startTime = System.nanoTime();
 		boolean facilityContainsThisPoint = false;
 		Solution auxSolution = new Solution(sol);
 		Solution bestAuxSolution = new Solution(sol);
@@ -52,23 +51,23 @@ public class LocalSearch {
 			}
 			//Termina de recorrer todos los puntos esa facility
 			//Ver si actuliza siendo mejor o sino volver a dejar la fac donde estaba
-			/*
-			for(int k=0; k<bestAuxSolution.getFacilities().size(); k++) {
-				auxSolution.getFacilities().get(k).deleteAllClients();
-				auxSolution.getFacilities().remove(k);
-				Facility fac = bestAuxSolution.getFacilities().get(k);
-				auxSolution.getFacilities().add(k, new Facility(fac));
-			}*/
+
 			auxSolution = new Solution(bestAuxSolution);
-			
 		}
+		return bestAuxSolution;
+	}
+	
+	public Solution calculateLocalSearch(Instance instance, Solution solution) {
+		long startTime = System.nanoTime();
+		Solution localSolution = this.solve(instance, solution);
 		long endTime = System.nanoTime();
 		long time = endTime - startTime;
-		
 		double executionTime = (double) time/1e6; //ns -> ms
-		System.out.println("Tiempo Busq Local: " + executionTime);
-		bestAuxSolution.setTime(executionTime);
-		//System.out.println("Tiempo SOL devuelta " + bestAuxSolution.getTime());
-		return bestAuxSolution;
+		System.out.println("Dentro de calculate LS: " + executionTime);
+		double timeSol = solution.getTime();
+		executionTime = executionTime + timeSol; //
+		localSolution.setTime(executionTime);
+		
+		return localSolution;
 	}
 }

@@ -18,7 +18,7 @@ public class Utils {
 	
 	protected final static String ROUTE1 = "instance\\homogeneous_facilities\\large_C_over_F";
 	protected final static String ROUTE2 = "instance\\homogeneous_facilities\\small_C_over_F";
-	protected final static String OUTPUT_NAME_FILE = "salida-ls.csv";
+	protected final static String OUTPUT_NAME_FILE = "salida-ls-1.csv";
 	protected final static int NUMBER_RANDOM = 100;
 	
 	public void createCSVFile(){
@@ -52,31 +52,17 @@ public class Utils {
 	    }
 	}
 	
-	public void addDataToCSVFile(String name, Solution solution, Solution localSearchSol, Solution bestSolution) {
+	public void addDataToCSVFile(String name, Solution solution, Solution localSearchSol) {
 		FileWriter w = null;
 		PrintWriter pw = null;
+		Solution bestSolution = solution.whichIsBetter(localSearchSol);
 		try {
 			w = new FileWriter(OUTPUT_NAME_FILE, true);
 			pw = new PrintWriter(w);
 			pw.print(name);
 			pw.print(";");
-			pw.printf("%.5f", solution.getTotalSum());
-			pw.print(";");
-			pw.printf("%.7f", solution.getTime()/1000); //ms->s
-			pw.print(";");
-			pw.printf("%.5f", solution.calculateDeviationFromTheBestSol(bestSolution));
-			pw.print(";");
-			pw.print(solution.isTheBest(bestSolution));
-			pw.print(";");
-			pw.printf("%.5f", localSearchSol.getTotalSum());
-			pw.print(";");
-			double time = ((localSearchSol.getTime()/1000) + (solution.getTime()/1000));
-			pw.printf("%.7f", time);
-			pw.print(";");
-			pw.printf("%.5f", localSearchSol.calculateDeviationFromTheBestSol(bestSolution));
-			pw.print(";");
-			pw.print(localSearchSol.isTheBest(bestSolution));
-			pw.print(";");
+			this.printMetrics(pw, solution, bestSolution);
+			this.printMetrics(pw, localSearchSol, bestSolution);
 			pw.print("");
 			pw.print(";");
 			pw.printf("%.5f", bestSolution.getTotalSum());
@@ -99,6 +85,17 @@ public class Utils {
 	            ex2.printStackTrace();
 	        }
 	    }
+	}
+	
+	public void printMetrics(PrintWriter pw, Solution solution, Solution bestSolution) {
+		pw.printf("%.5f", solution.getTotalSum());
+		pw.print(";");
+		pw.printf("%.7f", solution.getTime()/1000); //ms->s
+		pw.print(";");
+		pw.printf("%.5f", solution.calculateDeviationFromTheBestSol(bestSolution));
+		pw.print(";");
+		pw.print(solution.isTheBest(bestSolution));
+		pw.print(";");
 	}
 	
 	public List<Path> listSourceFiles(String dir) throws IOException{
@@ -235,12 +232,10 @@ public class Utils {
 			String nameFile = filePaths.get(i).getFileName().toString();
 
 			LocalSearch localSearch = new LocalSearch();
-			Solution lsSolution = localSearch.solve(instance, solution);
+			Solution lsSolution = localSearch.calculateLocalSearch(instance, solution);
 			System.out.println("Búsqueda local: " + lsSolution.getTotalSum());
 			
-			Solution bestSolution = solution.whichIsBetter(lsSolution);
-			
-			u.addDataToCSVFile(nameFile, solution, lsSolution, bestSolution);
+			u.addDataToCSVFile(nameFile, solution, lsSolution);
 			
 			for(int j=0; j<NUMBER_RANDOM; j++) {
 				//ArrayList<Client> cli = instance.getClientsSortedDescByWeight();
@@ -254,10 +249,8 @@ public class Utils {
 				System.out.println("Tiempo ejecución milisegundos: " + randomSolution.getTime());
 				System.out.println("Sumatorio: " + randomSolution.getTotalSum());
 				
-				Solution bestSol = randomSolution.whichIsBetter(lsRandSolution);
-				
 				String ranNameFile = "Ran" + j + nameFile;
-				u.addDataToCSVFile(ranNameFile, randomSolution, lsRandSolution, bestSol);
+				u.addDataToCSVFile(ranNameFile, randomSolution, lsRandSolution);
 				
 			}
 		}
