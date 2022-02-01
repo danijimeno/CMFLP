@@ -18,15 +18,20 @@ public class Utils {
 	
 	protected final static String ROUTE1 = "instance\\homogeneous_facilities\\large_C_over_F";
 	protected final static String ROUTE2 = "instance\\homogeneous_facilities\\small_C_over_F";
-	protected final static String OUTPUT_NAME_FILE = "salida.csv";
+	protected final static String OUTPUT_NAME_FILE = "salida-ls-1.csv";
+	protected final static int NUMBER_RANDOM = 100;
 	
 	public void createCSVFile(){
+		String fields = "F.O." + ';' + "Tiempo (s)" + ';' + "Dev (%)" + ';' + "#Best";
 		FileWriter w = null;
 		BufferedWriter bw = null;
 		try {
 			w = new FileWriter(OUTPUT_NAME_FILE);
 			bw = new BufferedWriter(w);
-			bw.write("Nombre de la instancia" + ";" + "Valor función objetivo" + ';' + "Tiempo de ejecución (ms)");
+			bw.write("" + ';' + "Constructivo" + ';' + "" + ';' + "" + ';' + "" + ';' + "Búsqueda Local" + ';');
+			bw.write("\n");
+			bw.write("Nombre de la instancia" + ";" + fields + ';' + fields);
+			bw.write(';' + "" + ';' + "Best");
 			bw.newLine();
 		} catch (FileNotFoundException ex) {
 			System.err.println("El fichero no se puede crear");
@@ -47,21 +52,24 @@ public class Utils {
 	    }
 	}
 	
-	public void addDataToCSVFile(String name, Solution solution) {
+	public void addDataToCSVFile(String name, Solution solution, Solution localSearchSol) {
 		FileWriter w = null;
 		PrintWriter pw = null;
+		Solution bestSolution = solution.whichIsBetter(localSearchSol);
 		try {
 			w = new FileWriter(OUTPUT_NAME_FILE, true);
 			pw = new PrintWriter(w);
 			pw.print(name);
 			pw.print(";");
-			pw.printf("%.5f", solution.getTotalSum());
+			this.printMetrics(pw, solution, bestSolution);
+			this.printMetrics(pw, localSearchSol, bestSolution);
+			pw.print("");
 			pw.print(";");
-			pw.printf("%.5f", solution.getTime());
+			pw.printf("%.5f", bestSolution.getTotalSum());
 			pw.println();
 			pw.flush();
 		} catch (FileNotFoundException ex) {
-			System.err.println("El fichero no se puede crear");
+			System.err.println("El fichero no se puede editar");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -77,6 +85,17 @@ public class Utils {
 	            ex2.printStackTrace();
 	        }
 	    }
+	}
+	
+	public void printMetrics(PrintWriter pw, Solution solution, Solution bestSolution) {
+		pw.printf("%.5f", solution.getTotalSum());
+		pw.print(";");
+		pw.printf("%.7f", solution.getTime()/1000); //ms->s
+		pw.print(";");
+		pw.printf("%.5f", solution.calculateDeviationFromTheBestSol(bestSolution));
+		pw.print(";");
+		pw.print(solution.isTheBest(bestSolution));
+		pw.print(";");
 	}
 	
 	public List<Path> listSourceFiles(String dir) throws IOException{
@@ -111,18 +130,7 @@ public class Utils {
 		ArrayList<Client> clientes = instance1.getClientsSortedDescByWeight();
 		
 		Solution initialSolution = new Solution(instance1);
-		/*
-		long startTime = System.nanoTime();
-		long startMil = System.currentTimeMillis();
-		initialSolution.assignClients(instance1,clientes);
-		long endTime = System.nanoTime();
-		long endMil = System.currentTimeMillis();
-		long time = endTime - startTime;
-		long mil = endMil - startMil;
-		System.out.println("Tiempo ejecución nanosegundos: " + time/1e6);
-		System.out.println("Tiempo ejecución milisegundos: " + mil);
-		*/
-		/*
+		
 		initialSolution.calculateSolution(instance1, clientes);
 		
 		Iterator<Client> iteratorClientsOrd = clientes.iterator();
@@ -156,7 +164,12 @@ public class Utils {
 		
 		
 		System.out.println("Array solution: " + initialSolution.getFacilities());
-		*/
+		
+		LocalSearch ls = new LocalSearch();
+		ls.solve(instance1, initialSolution);
+		
+		
+		//initialSolution.getFacilities().get(0).getClients().get(1).deleteFacility();
 		
 		/*
 		ArrayList<Integer> randomFacPoints = initialSolution.generateFacilitiesRandom(instance1, facilities);
@@ -186,7 +199,7 @@ public class Utils {
 		System.out.println(clientes);
 		*/
 		
-
+		
 		Utils u = new Utils();
 		List<Path> filePaths1 = new ArrayList<Path>();
 		List<Path> filePaths2 = new ArrayList<Path>();
@@ -201,18 +214,11 @@ public class Utils {
 		filePaths2.forEach(x -> System.out.println(x.toString()));
 		
 		List<Path> filePaths = Stream.concat(filePaths1.stream(), filePaths2.stream()).collect(Collectors.toList());
-		
-		ArrayList<Instance> instances = new ArrayList<>();
-		for(int i=0; i<filePaths.size(); i++) {
-			Instance ins = new Instance();
-			instances.add(ins);
-		}
-		System.out.println("Instancias: " + instances.size());
-		
+
 		u.createCSVFile();
 		
-		for(int i=0; i<instances.size(); i++) {
-			Instance instance = instances.get(i);
+		for(int i=0; i<filePaths.size(); i++) {
+			Instance instance = new Instance();
 			String pathFile = filePaths.get(i).toString();
 			instance.readFile(pathFile);
 			ArrayList<Client> clients = instance.getClientsSortedDescByWeight();
@@ -220,23 +226,32 @@ public class Utils {
 			Solution solution = new Solution(instance);
 			solution.calculateSolution(instance, clients);
 			
-			System.out.println("Tiempo ejecución nanosegundos: " + solution.getTime());
+			System.out.println("Tiempo ejecución milisegundos: " + solution.getTime());
 			System.out.println("Sumatorio: " + solution.getTotalSum());
 			
 			String nameFile = filePaths.get(i).getFileName().toString();
-			u.addDataToCSVFile(nameFile, solution);
+
+			LocalSearch localSearch = new LocalSearch();
+			Solution lsSolution = localSearch.calculateLocalSearch(instance, solution);
+			System.out.println("Búsqueda local: " + lsSolution.getTotalSum());
 			
-			for(int j=0; j<100; j++) {
+			u.addDataToCSVFile(nameFile, solution, lsSolution);
+			
+			for(int j=0; j<NUMBER_RANDOM; j++) {
 				//ArrayList<Client> cli = instance.getClientsSortedDescByWeight();
 				Solution randomSolution = new Solution(instance);
 				randomSolution.addRandomFacilitiesToOriginal(instance);
 				randomSolution.calculateSolution(instance, clients);
 				
-				System.out.println("Tiempo ejecución nanosegundos: " + randomSolution.getTime());
+				LocalSearch localSearchRand = new LocalSearch();
+				Solution lsRandSolution = localSearchRand.solve(instance, randomSolution);
+				
+				System.out.println("Tiempo ejecución milisegundos: " + randomSolution.getTime());
 				System.out.println("Sumatorio: " + randomSolution.getTotalSum());
 				
 				String ranNameFile = "Ran" + j + nameFile;
-				u.addDataToCSVFile(ranNameFile, randomSolution);
+				u.addDataToCSVFile(ranNameFile, randomSolution, lsRandSolution);
+				
 			}
 		}
 		

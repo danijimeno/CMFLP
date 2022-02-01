@@ -19,6 +19,17 @@ public class Facility {
 		this.clients = new ArrayList<Client>();
 	}
 	
+	public Facility(Facility fac) {
+		this.w = fac.getW();
+		this.qCap = fac.qCap;
+		this.originPoint = fac.getOriginPoint();
+		this.currentPoint = fac.getCurrentPoint();
+		this.partialCapacity = fac.getPartialCapacity();
+		this.clients = new ArrayList<Client>();
+		fac.getClients().forEach(client -> addClient(new Client(client)));
+		//fac.getClients().stream().forEach(client -> addClient(new Client (client.getU(), client.getQ(), client.getPoint())));
+	}
+	
 
 	public int getW() {
 		return w;

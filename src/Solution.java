@@ -8,18 +8,20 @@ public class Solution {
 	private double totalSum;
 	private double time;
 	
-	public Solution() {
-		this.facilities = new ArrayList<Facility>();
-		this.totalSum = 0;
-		this.time = 0;
-	}
-	
 	public Solution(Instance instance) {
 		this.facilities = instance.getFacilities();
 		this.totalSum = 0;
 		this.time = 0;
 	}
-
+	
+	public Solution(Solution solution) {
+		this.facilities = new ArrayList<Facility>();
+		for(Facility fac: solution.getFacilities()) {
+			this.facilities.add(new Facility(fac));
+		}
+		this.totalSum = solution.getTotalSum();
+		this.time = solution.getTime();
+	}
 
 	public ArrayList<Facility> getFacilities() {
 		return facilities;
@@ -120,7 +122,7 @@ public class Solution {
 		return newFacilities;
 	}
 	
-	public void addRandomFacilitiesToOriginal (Instance instance) {
+	public void addRandomFacilitiesToOriginal(Instance instance) {
 		int point = 0;
 		ArrayList<Integer> randomFacilitiesPoints = this.generateFacilitiesRandom(instance);
 		for(int i=0; i<randomFacilitiesPoints.size(); i++) {
@@ -134,12 +136,27 @@ public class Solution {
 	public void calculateSolution(Instance instance, ArrayList<Client> clientsOrdered) {
 		long startTime = System.nanoTime();
 		this.assignClients(instance, clientsOrdered);
+		double summation = this.evaluateTheSolution(instance, clientsOrdered);
 		long endTime = System.nanoTime();
 		long time = endTime - startTime;
 		
 		double executionTime = (double) time/1e6; //ns -> ms
-		double summation = this.evaluateTheSolution(instance, clientsOrdered);
 		this.setTime(executionTime);
 		this.setTotalSum(summation);
+	}
+	
+	public double calculateDeviationFromTheBestSol(Solution bestSolution) {
+		double best = bestSolution.getTotalSum();
+		double objectiveFunction = this.getTotalSum();
+		double dev = Math.abs((best - objectiveFunction)/best);
+		return dev;
+	}
+	
+	public Solution whichIsBetter(Solution solution) {
+		return (this.getTotalSum() < solution.getTotalSum())?this:solution;
+	}
+	
+	public int isTheBest(Solution bestSolution) {
+		return (this==bestSolution)?1:0;
 	}
 }
