@@ -26,10 +26,6 @@ public class Facility {
 		this.currentPoint = fac.getCurrentPoint();
 		this.partialCapacity = fac.getPartialCapacity();
 		this.clients = new ArrayList<Client>();
-		/*for(Client client : fac.getClients()) {
-			//this.addClient(new Client(client.getU(), client.getQ(), client.getPoint()));
-			this.addClient(new Client(client));
-		}*/
 		fac.getClients().forEach(client -> addClient(new Client(client)));
 		//fac.getClients().stream().forEach(client -> addClient(new Client (client.getU(), client.getQ(), client.getPoint())));
 	}

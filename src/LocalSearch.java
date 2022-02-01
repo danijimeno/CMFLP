@@ -9,7 +9,6 @@ public class LocalSearch {
 		
 		ArrayList<Client> clients = instance.getClientsSortedDescByWeight();
 		int numPosition = instance.getV();
-		ArrayList<Facility> facilities = auxSolution.getFacilities();
 		
 		for(int i=0; i<sol.getFacilities().size(); i++) {
 			int pointFacility = auxSolution.getFacilities().get(i).getCurrentPoint();
@@ -28,30 +27,23 @@ public class LocalSearch {
 						continue;
 					}else {
 						auxSolution.getFacilities().get(i).setCurrentPoint(newPoint);
-						//desmarco los clientes asignados para poder calcular con el nuevo punto
+						//I uncheck the assigned clients to be able to perform the calculation with the new point
 						for(Facility fac: auxSolution.getFacilities()) {
 							fac.deleteAllClients();
 						}
-						//calcular solucion con el nuevo punto en la facility
+						//calculating the solution with the new facility point
 						auxSolution.calculateSolution(instance, clients);
 
-						//comparar soluciones
+						//compare solutions
 						if(auxSolution.getTotalSum() < bestAuxSolution.getTotalSum()) {
-							/*
-							System.out.println("La solución es mejor en el punto: " + newPoint);
-							System.out.println("Aux SUM: " + auxSolution.getTotalSum());
-							System.out.println("Best SUM: " + bestAuxSolution.getTotalSum());
-							*/
 							bestAuxSolution = new Solution(auxSolution);
 							break;
-							//hay que actualizar el valor encontrado
 						}
 					}
 				}
 			}
 			//Termina de recorrer todos los puntos esa facility
 			//Ver si actuliza siendo mejor o sino volver a dejar la fac donde estaba
-
 			auxSolution = new Solution(bestAuxSolution);
 		}
 		return bestAuxSolution;
@@ -65,7 +57,8 @@ public class LocalSearch {
 		double executionTime = (double) time/1e6; //ns -> ms
 		System.out.println("Dentro de calculate LS: " + executionTime);
 		double timeSol = solution.getTime();
-		executionTime = executionTime + timeSol; //
+		//total time of the local search is the sum of the constructive plus the time taken for the local search
+		executionTime = executionTime + timeSol;
 		localSolution.setTime(executionTime);
 		
 		return localSolution;
