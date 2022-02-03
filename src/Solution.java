@@ -54,24 +54,23 @@ public class Solution {
 		int facility = 0;
 		int partialCapFac = 0;
 		int indexPartCap = 0;
-		for(int i=0; i<clientsOrdered.size(); i++) {
-			if(clientsOrdered.get(i).getU() > 0) {
-				int pointClient = clientsOrdered.get(i).getPoint();
-				int indexClient = pointClient - 1;
-				for(int j=0; j<facilities.size(); j++) {
-					int pointFacility = facilities.get(j).getCurrentPoint();
-					int indexFacility = pointFacility - 1; //Resto uno para acceder al indice en la matriz de distancias ya que los puntos empiezan en 1 no en 0
-					if((d[indexClient][indexFacility] < distance) && ((facilities.get(j).getPartialCapacity() + clientsOrdered.get(i).getQ()) <= facilities.get(j).getqCap())) {
-						distance = d[indexClient][indexFacility];
-						facility = pointFacility;
-						partialCapFac = facilities.get(j).getPartialCapacity() + clientsOrdered.get(i).getQ();
-						indexPartCap = j;
-					} 
+		for (int i = 0; i < clientsOrdered.size(); i++) {
+			int pointClient = clientsOrdered.get(i).getPoint();
+			int indexClient = pointClient - 1;
+			for (int j = 0; j < facilities.size(); j++) {
+				int pointFacility = facilities.get(j).getCurrentPoint();
+				int indexFacility = pointFacility - 1; // Resto uno para acceder al indice en la matriz de distancias ya que los puntos empiezan en 1 no en 0
+				if ((d[indexClient][indexFacility] < distance)
+						&& ((facilities.get(j).getPartialCapacity() + clientsOrdered.get(i).getQ()) <= facilities.get(j).getqCap())) {
+					distance = d[indexClient][indexFacility];
+					facility = pointFacility;
+					partialCapFac = facilities.get(j).getPartialCapacity() + clientsOrdered.get(i).getQ();
+					indexPartCap = j;
 				}
-				if(!(facility == 0 && distance == 10000)) {
-					facilities.get(indexPartCap).setPartialCapacity(partialCapFac);
-					facilities.get(indexPartCap).addClient(clientsOrdered.get(i));
-				}
+			}
+			if (!(facility == 0 && distance == 10000)) {
+				facilities.get(indexPartCap).setPartialCapacity(partialCapFac);
+				facilities.get(indexPartCap).addClient(clientsOrdered.get(i));
 			}
 			distance = 10000;
 			facility = 0;
@@ -94,16 +93,14 @@ public class Solution {
 			totalSum += partialSumFac;
 		}
 		//2 part
-		for(int i=0; i<clientsOrdered.size(); i++) {
-			if(clientsOrdered.get(i).getU() > 0) {
-				int pointClient = clientsOrdered.get(i).getPoint();
-				int indexClient = pointClient - 1;
-				if(clientsOrdered.get(i).getFacility() != null) {
-					int pointFacility = clientsOrdered.get(i).getFacility().getCurrentPoint();
-					int indexFacility = pointFacility - 1;
-					partialSumClients = clientsOrdered.get(i).getU() * d[indexClient][indexFacility];
-					totalSum += partialSumClients;
-				}
+		for (int i = 0; i < clientsOrdered.size(); i++) {
+			int pointClient = clientsOrdered.get(i).getPoint();
+			int indexClient = pointClient - 1;
+			if (clientsOrdered.get(i).getFacility() != null) {
+				int pointFacility = clientsOrdered.get(i).getFacility().getCurrentPoint();
+				int indexFacility = pointFacility - 1;
+				partialSumClients = clientsOrdered.get(i).getU() * d[indexClient][indexFacility];
+				totalSum += partialSumClients;
 			}
 		}
 		return totalSum;
@@ -153,10 +150,10 @@ public class Solution {
 	}
 	
 	public Solution whichIsBetter(Solution solution) {
-		return (this.getTotalSum() < solution.getTotalSum())?this:solution;
+		return (this.getTotalSum() < solution.getTotalSum()) ? this : solution;
 	}
 	
 	public int isTheBest(Solution bestSolution) {
-		return (this==bestSolution)?1:0;
+		return (this == bestSolution) ? 1 : 0;
 	}
 }

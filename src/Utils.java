@@ -1,4 +1,3 @@
-import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,15 +22,19 @@ public class Utils {
 	public void createCSVFile(){
 		String fields = "F.O." + ';' + "Tiempo (s)" + ';' + "Dev (%)" + ';' + "#Best";
 		FileWriter w = null;
-		BufferedWriter bw = null;
+		PrintWriter pw = null;
 		try {
 			w = new FileWriter(OUTPUT_NAME_FILE);
-			bw = new BufferedWriter(w);
-			bw.write("" + ';' + "Constructivo" + ';' + "" + ';' + "" + ';' + "" + ';' + "Búsqueda Local" + ';');
-			bw.write("\n");
-			bw.write("Nombre de la instancia" + ";" + fields + ';' + fields);
-			bw.write(';' + "" + ';' + "Best");
-			bw.newLine();
+			pw = new PrintWriter(w);
+			pw.println(';' + fields);
+			pw.println("Constructivo");
+			pw.println("Búsqueda local");
+			pw.println();
+			pw.println();
+			pw.println("" + ';' + "Constructivo" + ';'+ ';'+ ';'+ ';' + "Búsqueda Local");
+			pw.print("Nombre de la instancia" + ";" + fields + ';' + fields + ';');
+			pw.println("" + ';' + "Best");
+			pw.flush();
 		} catch (FileNotFoundException ex) {
 			System.err.println("El fichero no se puede crear");
 		} catch (IOException e) {
@@ -41,10 +43,10 @@ public class Utils {
 			System.err.println("Error al escribir en fichero");
 		} finally {
 	        try {
-	            if (bw != null)
-	                bw.close();
 	            if (w != null)
 	                w.close();
+	            if (pw != null)
+	                pw.close();
 	        } catch (IOException ex) {
 	        	System.err.println("ERROR al cerrar el fichero");
 	            ex.printStackTrace();
@@ -125,23 +127,15 @@ public class Utils {
 		System.out.println("U: " + instance1.getU().length);
 		System.out.println("q: " + instance1.getQ().length);
 		
-		
-		ArrayList<Facility> facilities = instance1.getFacilities();
 		ArrayList<Client> clientes = instance1.getClientsSortedDescByWeight();
 		
 		Solution initialSolution = new Solution(instance1);
-		
 		initialSolution.calculateSolution(instance1, clientes);
 		
-		Iterator<Client> iteratorClientsOrd = clientes.iterator();
-		while(iteratorClientsOrd.hasNext()) {
-			System.out.print(iteratorClientsOrd.next().getPoint() + " ");
-		}
+		clientes.forEach(client -> System.out.print(client.getPoint() + " "));
 		System.out.println();
 		
-		
-		System.out.println("Lista de facilities");
-		System.out.println(facilities);
+		System.out.println("Lista de facilities:");
 		System.out.println(initialSolution.getFacilities());
 		System.out.println(clientes);
 		
@@ -153,50 +147,32 @@ public class Utils {
 			}
 			System.out.println();
 		}
-		
 		for(Client client : clientes) {
 			System.out.println(client.getPoint() + "->" + client.getFacility());
 		}
 		
-		//double summation = initialSolution.evaluateTheSolution(instance1, clientes);
 		System.out.format("Total Sumatorio: %.5f ", initialSolution.getTotalSum());
 		System.out.println();
 		
-		
 		System.out.println("Array solution: " + initialSolution.getFacilities());
-		
+
 		LocalSearch ls = new LocalSearch();
-		ls.solve(instance1, initialSolution);
+		Solution localSolution = ls.calculateLocalSearch(instance1, initialSolution);
+		System.out.println("Búsq Local: " + localSolution.getTotalSum());
+		System.out.println("Tiempo Búsq Local: " + localSolution.getTime());
 		
-		
-		//initialSolution.getFacilities().get(0).getClients().get(1).deleteFacility();
-		
-		/*
-		ArrayList<Integer> randomFacPoints = initialSolution.generateFacilitiesRandom(instance1, facilities);
-		System.out.println("--SALIDA ARRAY RANDOM FAC---");
-		for(Integer i : randomFacPoints) {
-			System.out.println(i);
-		}*/
 		/*
 		Solution randSolution = new Solution(instance1);
 
+		ArrayList<Client> clientes1 = instance1.getClientsSortedDescByWeight();
 		randSolution.addRandomFacilitiesToOriginal(instance1);
+		randSolution.calculateSolution(instance1, clientes1);
 		System.out.println("Facilities random asignadas a las originales :");
 		System.out.println(randSolution.getFacilities());
-		System.out.println(clientes);
+		System.out.println(clientes1);
 		
-		
-		System.out.println("-----------EVALUACION RANDOM FAC--------------");
-		long startTimeRan = System.nanoTime();
-		randSolution.assignClients(instance1, clientes);
-		long endTimeRan = System.nanoTime();
-		long timeRan = endTimeRan - startTimeRan;
-
-		double summationRandom = randSolution.evaluateTheSolution(instance1, clientes);
-		System.out.println("Sumatorio Solucion random: " + summationRandom);
-		System.out.println("Tiempo ejecución random: " + timeRan/1e6);
-
-		System.out.println(clientes);
+		System.out.println("Sumatorio Solucion random: " + randSolution.getTotalSum());
+		System.out.println("Tiempo ejecución random: " + randSolution.getTime());
 		*/
 		
 		
@@ -238,10 +214,10 @@ public class Utils {
 			u.addDataToCSVFile(nameFile, solution, lsSolution);
 			
 			for(int j=0; j<NUMBER_RANDOM; j++) {
-				//ArrayList<Client> cli = instance.getClientsSortedDescByWeight();
+				ArrayList<Client> clients1 = instance.getClientsSortedDescByWeight();
 				Solution randomSolution = new Solution(instance);
 				randomSolution.addRandomFacilitiesToOriginal(instance);
-				randomSolution.calculateSolution(instance, clients);
+				randomSolution.calculateSolution(instance, clients1);
 				
 				LocalSearch localSearchRand = new LocalSearch();
 				Solution lsRandSolution = localSearchRand.solve(instance, randomSolution);

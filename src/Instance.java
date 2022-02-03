@@ -125,7 +125,9 @@ public class Instance {
 	public ArrayList<Client> getClientsSortedDescByWeight(){
 		ArrayList<Client> clients = new ArrayList<Client>();
 		for(int i=0; i<this.u.length; i++) {
-			clients.add(new Client(this.u[i], this.q[i], i+1));
+			if((this.u[i] > 0) && (this.q[i] > 0)) {
+				clients.add(new Client(this.u[i], this.q[i], i+1));
+			}
 		}
 		Collections.sort(clients, Collections.reverseOrder()); //to sort them in descending order
 		return clients;
