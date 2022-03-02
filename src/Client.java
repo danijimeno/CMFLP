@@ -67,9 +67,11 @@ public class Client implements Comparable<Client> {
 	}
 	
 	public void deleteFacility() {
-		int partialCap = this.facility.getPartialCapacity() - this.q;
-		this.facility.setPartialCapacity(partialCap);
-		this.facility = null;
+		if(this.facility != null) {
+			int partialCap = this.facility.getPartialCapacity() - this.q;
+			this.facility.setPartialCapacity(partialCap);
+			this.facility = null;
+		}
 	}
 	
 	
