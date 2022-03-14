@@ -254,7 +254,7 @@ public class Utils {
 			
 			//u.addDataToCSVFile(nameFile, solution, null);
 			u.addDataToCSVFileOneSolution(nameFile, solution);
-			
+			/*
 			for(int j=0; j<NUMBER_RANDOM; j++) {
 				ArrayList<Client> clients1 = instance.getClientsSortedDescByWeight();
 				Solution randomSolution = new Solution(instance);

@@ -156,4 +156,9 @@ public class Solution {
 	public int isTheBest(Solution bestSolution) {
 		return (this == bestSolution) ? 1 : 0;
 	}
+	
+	@Override
+	public String toString() {
+		return "Solution " + this.facilities.toString() + " " + this.totalSum + ", time=" + this.time;
+	}
 }
