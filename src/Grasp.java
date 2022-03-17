@@ -1,25 +1,18 @@
-import java.nio.file.DirectoryStream.Filter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class Grasp {
 	
 	final double ALFA = 0.5;
 
-	public Solution solve(Instance instance) {
+	public Solution solve(Instance instance, int distancePercentage) {
 		int[][] d = instance.getD();
 		ArrayList<Solution> s = new ArrayList<Solution>();
-		Solution resul = new Solution(instance);
-		System.out.println(resul.getFacilities().size());
-		resul.getFacilities().clear();
-		System.out.println(resul.getFacilities().size());
+		Solution result = new Solution(instance);
+		result.getFacilities().clear();
+
 		ArrayList<Facility> facilities = instance.getFacilities();
-		//ArrayList<Client> clients = instance.getClientsSortedDescByWeight();
 		double minimum = 100000.0;
 		double maximum = 0;
 		double mu = 0;
@@ -28,10 +21,9 @@ public class Grasp {
 		Solution otherSolution = new Solution(auxSolution);
 		int numPositions = instance.getV();
 		
-		ArrayList<Facility> facilitiesSel = new ArrayList<Facility>();
-		
-		ArrayList<Solution> candidates = new ArrayList<Solution>();
-		
+		ArrayList<Facility> facsSelectedCL = new ArrayList<Facility>();
+		ArrayList<Solution> candidatesList = new ArrayList<Solution>();
+		/*
 		for (int i = 0; i < facilities.size(); i++) {
 			int pointFacility = auxSolution.getFacilities().get(i).getCurrentPoint();
 			int indexFacility = pointFacility - 1;
@@ -55,52 +47,71 @@ public class Grasp {
 						auxSolution.getFacilities().get(k).setOriginPoint(0);
 					}
 				}
-				candidates.add(auxSolution);
+				candidatesList.add(auxSolution);
 				auxSolution = new Solution(otherSolution);
 			}
 			System.out.println("***");
 		}
 		auxSolution = new Solution(otherSolution);
-		
-		System.out.println("Lista Candidatos " + candidates.size());
-		this.imprimirLista(candidates);
+		*/
 
+		int closestNumber = (int) Math.round(numPositions * distancePercentage / 100);
 
-			
-		
-		int index = this.selectRandomItem(candidates);
-		Solution solution = candidates.get(index);
+		for(int i=0; i<auxSolution.getFacilities().size(); i++) {
+			ArrayList<Integer> lista = new ArrayList<Integer>();
+			int pointFacility = auxSolution.getFacilities().get(i).getCurrentPoint();
+			int indexFacility = pointFacility - 1;
+			//the list is created with the distances from the facility to each of the clients
+			for(int j=0; j<numPositions; j++) {
+				lista.add(d[indexFacility][j]);
+			}
+			//select the number of clients closest to the installation according to the distance percentage defined
+			for(int k=0; k<closestNumber; k++) {
+				//int min = lista.stream().min(Comparator.naturalOrder()).get();
+				int min = 100000;
+				for(Integer in: lista) {
+					if(in != null) {
+						if(in < min) {
+							min = in;
+						}
+					}
+				}
+				int indexNewPos = lista.indexOf(min);
+				int pointNewPos = indexNewPos + 1;
+				lista.set(indexNewPos, null);
+				
+				ArrayList<Client> clients = instance.getClientsSortedDescByWeight();
+				auxSolution.getFacilities().get(i).setCurrentPoint(pointNewPos);
+				// calculating the solution with the new facility point
+				auxSolution.calculateSolution(instance, clients);
+				for (int l = 0; l < auxSolution.getFacilities().size(); l++) {
+					if (auxSolution.getFacilities().get(l) != auxSolution.getFacilities().get(i)) {
+						auxSolution.getFacilities().get(l).setOriginPoint(0);
+					}
+				}
+				min = 100000;
+				candidatesList.add(auxSolution);
+				auxSolution = new Solution(otherSolution);
+			}
+			auxSolution = new Solution(otherSolution);
+		}
+
+		Solution solution = this.selectRandomCandidate(candidatesList);
 		s.add(solution);
-		candidates.remove(index);
-		System.out.println("Lista Candidatos " + candidates.size());
+		candidatesList.remove(solution);
 
-		System.out.println("SOLUCION " + solution);
+		this.saveSelectedCandidate(solution, facsSelectedCL);
+		this.removeCandidatesBasedSelectedCand(facsSelectedCL, candidatesList);
+		this.updateCandidates(facsSelectedCL.get(0), candidatesList);
 
-		this.facSeleccionada(solution, facilitiesSel);
-		System.out.println("SOLUCION " + solution);
-		System.out.println("ARRAY SELECCIONADAS");
-		System.out.println(facilitiesSel);
-		
-		this.borrarSel(facilitiesSel, candidates);
-		
-		System.out.println("DESPUES DE ELIMINAR SELECCIONADOS");
-		this.imprimirLista(candidates);
-		
-
-		this.updateCandidates(facilitiesSel.get(0), candidates);
-		
-		System.out.println("DESPUES DE ACTUALIZAAARRRR");
-		this.imprimirLista(candidates);
 		
 		//while(resul.getFacilities().size() != facilities.size()) {
 		while(s.size() != facilities.size()) {
 			//minimum = candidates.stream().mapToDouble(Solution::getTotalSum).min().getAsDouble();
 			//maximum = candidates.stream().mapToDouble(Solution::getTotalSum).max().getAsDouble();
 			
-			
-			for(int i=0; i<candidates.size(); i++) {
-				Solution auxSolCand = new Solution(candidates.get(i));
-				System.out.println("ANTES MOD SOLUCION " + auxSolCand);
+			for(int i=0; i<candidatesList.size(); i++) {
+				Solution auxSolCand = new Solution(candidatesList.get(i));
 				for(int j=0; j<auxSolCand.getFacilities().size(); j++) {
 					Facility auxFac = auxSolCand.getFacilities().get(j);
 					if(auxFac.getOriginPoint() == 0) {
@@ -108,14 +119,12 @@ public class Grasp {
 					}
 				}
 				auxSolCand.getFacilities().forEach(Facility::deleteAllClients);
-				System.out.println("DESPU MOD SOLUCION " + auxSolCand);
+
 				ArrayList<Client> clientes = instance.getClientsSortedDescByWeight();
 				auxSolCand.calculateSolution(instance, clientes);
-				System.out.println("     " + auxSolCand);
-				
-				candidates.get(i).setTotalSum(auxSolCand.getTotalSum());
-				candidates.get(i).setTime(auxSolCand.getTime());
-				
+
+				candidatesList.get(i).setTotalSum(auxSolCand.getTotalSum());
+				candidatesList.get(i).setTime(auxSolCand.getTime());
 				/*
 				for(int k=0; k<candidates.get(i).getFacilities().size(); k++) {
 					Facility facility = candidates.get(i).getFacilities().get(k);
@@ -126,90 +135,51 @@ public class Grasp {
 				candidates.set(i, auxSolCand);
 				*/			
 				
-				if(candidates.get(i).getTotalSum() < minimum) {
-					minimum = candidates.get(i).getTotalSum();
+				if(candidatesList.get(i).getTotalSum() < minimum) {
+					minimum = candidatesList.get(i).getTotalSum();
 				}
-				if(maximum < candidates.get(i).getTotalSum()) {
-					maximum = candidates.get(i).getTotalSum();
+				if(maximum < candidatesList.get(i).getTotalSum()) {
+					maximum = candidatesList.get(i).getTotalSum();
 				}
 			}
-			System.out.println("MINIMO " + minimum);
-			System.out.println("MAXIMO " + maximum);
 			
 			mu = minimum + ALFA * (maximum - minimum);
-
-			System.out.println("MU: " + mu);
 			
 			ArrayList<Solution> restrictedCandidatesList = new ArrayList<Solution>();
-			
-			for(int i=0; i<candidates.size(); i++) {
-				if(candidates.get(i).getTotalSum() <= mu) {
-					restrictedCandidatesList.add(candidates.get(i));
-					System.out.println("Cand " + candidates.get(i));
+			for(int i=0; i<candidatesList.size(); i++) {
+				if(candidatesList.get(i).getTotalSum() <= mu) {
+					restrictedCandidatesList.add(candidatesList.get(i));
 				}
 			}
 			
+			solution = this.selectRandomCandidate(restrictedCandidatesList);
+			s.add(solution);
+			candidatesList.remove(solution);
 
-			int index1 = this.selectRandomItem(restrictedCandidatesList);
+			this.saveSelectedCandidate(solution, facsSelectedCL);
+			this.removeCandidatesBasedSelectedCand(facsSelectedCL, candidatesList);
+			this.updateCandidates(facsSelectedCL.get(facsSelectedCL.size()-1), candidatesList);
 			
-			Solution solution1 = restrictedCandidatesList.get(index1);
-			s.add(solution1);
-			candidates.remove(solution1);
-			
-			System.out.println("RCL");
-			this.imprimirLista(restrictedCandidatesList);
-					
-			
-			System.out.println("SOLUCION " + solution1);
-
-			
-			this.facSeleccionada(solution1, facilitiesSel);
-			System.out.println("SOLUCION ACT " + solution1);
-			System.out.println("ARRAY SELECCIONADAS");
-			System.out.println(facilitiesSel);
-			
-			this.borrarSel(facilitiesSel, candidates);
-			
-			System.out.println("DESPUES DE ELIMINAR SELECCIONADOS RCL");
-			this.imprimirLista(candidates);
-			
-			this.updateCandidates(facilitiesSel.get(facilitiesSel.size()-1), candidates);
-			
-			System.out.println("DESPUES DE ACTUALIZAAARRRR");
-			this.imprimirLista(candidates);
-					
-
 			minimum = 100000.0;
 			maximum = 0;
 		}
 		
 		s.forEach(sol -> sol.getFacilities().forEach(Facility::deleteAllClients));
 
-		s.forEach(sol -> sol.getFacilities().removeIf(fac2 -> fac2.getOriginPoint() == 0));
-		
-		System.out.println("SOLUCIONN");
-		for(int i=0; i<s.size(); i++) {
-			for(int j=0; j<s.get(i).getFacilities().size(); j++) {
-				System.out.println(s.get(i).getFacilities().get(j));
-				System.out.println(s.get(i).getFacilities().get(j).getClients());
-			}
+		for(int i=0; i<facsSelectedCL.size(); i++) {
+			result.getFacilities().add(facsSelectedCL.get(i));
 		}
-		
-		for(int i=0; i<facilitiesSel.size(); i++) {
-			resul.getFacilities().add(facilitiesSel.get(i));
-		}
-		resul.calculateSolution(instance, instance.getClientsSortedDescByWeight());
-		
-		System.out.println("RESULTADO" + resul);
+		result.calculateSolution(instance, instance.getClientsSortedDescByWeight());
 
-		return resul;
+		return result;
 	}
 	
-	public int selectRandomItem(ArrayList<Solution> candidates) {
+	public Solution selectRandomCandidate(ArrayList<Solution> candidates) {
 		Random random = new Random();
 		int index = random.nextInt(candidates.size());
-		System.out.println("Indice aleatorio: " + index);
-		return index;
+		//System.out.println("Indice aleatorio: " + index);
+		Solution solution = candidates.get(index);
+		return solution;
 	}
 	
 	public void imprimirLista(ArrayList<Solution> lista) {
@@ -223,49 +193,47 @@ public class Grasp {
 		}
 	}
 	
-	public Solution calculateGrasp(Instance instance) {
+	public Solution calculateGrasp(Instance instance, int distancePercentage) {
 		long startTime = System.nanoTime();
-		Solution GraspSolution = this.solve(instance);
+		Solution graspSolution = this.solve(instance, distancePercentage);
 		long endTime = System.nanoTime();
 		long time = endTime - startTime;
-		double executionTime = (double) time/1e6; //ns -> ms
-		System.out.println("Dentro de calculate GRASP: " + executionTime);
+		double executionTime = (double) time / 1e6; // ns -> ms
+		//System.out.println("Dentro GRASP execution: " + executionTime);
+		double constructionTime = graspSolution.getTime();
+		//System.out.println("Dentro GRASP construction: " + constructionTime);
+		graspSolution.setTime(executionTime + constructionTime);
 
-		GraspSolution.setTime(executionTime);
-		
-		return GraspSolution;
+		return graspSolution;
 	}
-	
 	
 	public void updateCandidates(Facility facility, ArrayList<Solution> candidates) {
 		int pointOrigin = facility.getOriginPoint();
-		int currentPoint = facility.getCurrentPoint();
 		for(int i=0; i<candidates.size(); i++) {
 			for(int j=0; j<candidates.get(i).getFacilities().size(); j++) {
 				if(candidates.get(i).getFacilities().get(j).getCurrentPoint() == pointOrigin 
 						&& candidates.get(i).getFacilities().get(j).getOriginPoint() == 0) {
-					//candidates.get(i).getFacilities().get(j).setOriginPoint(pointOrigin);
-					//candidates.get(i).getFacilities().get(j).setCurrentPoint(currentPoint);
 					candidates.get(i).getFacilities().set(j, facility);
 				}
 			}
 		}
 	}
 	
-	public void facSeleccionada(Solution solution, ArrayList<Facility> seleccionados) {
+	public void saveSelectedCandidate(Solution solution, ArrayList<Facility> selectedCand) {
 		Iterator<Facility> itSolution = solution.getFacilities().iterator();
 		while(itSolution.hasNext()) {
 			Facility facility = itSolution.next();
 			if(facility.getOriginPoint() == 0) {
 				itSolution.remove();
-			} else if (!seleccionados.contains(facility)) {
-				seleccionados.add(facility);
+			} else if (!selectedCand.contains(facility)) {
+				selectedCand.add(facility);
 			} 
 		}
 	}
 	
-	public void borrarSel(ArrayList<Facility> seleccionadas, ArrayList<Solution> candidates) {
-		Facility fac = seleccionadas.get(seleccionadas.size() - 1);
+	// remove candidates based on the selected candidate
+	public void removeCandidatesBasedSelectedCand(ArrayList<Facility> selectedCand, ArrayList<Solution> candidates) {
+		Facility fac = selectedCand.get(selectedCand.size() - 1);
 		int originPointFac = fac.getOriginPoint();
 		int currentPointFac = fac.getCurrentPoint();
 		Iterator<Solution> iteratorCand = candidates.iterator();

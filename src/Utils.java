@@ -16,9 +16,10 @@ public class Utils {
 	
 	protected final static String ROUTE1 = "instance\\homogeneous_facilities\\large_C_over_F";
 	protected final static String ROUTE2 = "instance\\homogeneous_facilities\\small_C_over_F";
-	protected final static String OUTPUT_NAME_FILE = "salida-grasp.csv";
 	protected final static int NUMBER_RANDOM = 100;
 	protected final static int NUMBER_GRASP = 100;
+	protected final static int PERCENTAGE_CLOSEST_GRASP = 30;
+	protected final static String OUTPUT_NAME_FILE = "salida-grasp-" + PERCENTAGE_CLOSEST_GRASP + ".csv";
 	
 	public void createCSVFile(){
 		String fields = "F.O." + ';' + "Tiempo (s)" + ';' + "Dev (%)" + ';' + "#Best";
@@ -153,7 +154,7 @@ public class Utils {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		
+		/*
 		Instance instance1 = new Instance();
 		instance1.readFile("fichero1.txt");
 		//instance1.readFile("pmed1v3.10.2.txt");
@@ -198,9 +199,9 @@ public class Utils {
 		System.out.println("Búsq Local: " + localSolution.getTotalSum());
 		System.out.println("Tiempo Búsq Local: " + localSolution.getTime());
 		*/
-		Grasp grasp = new Grasp();
-		grasp.solve(instance1);
-		//grasp.calculateGrasp(instance1);
+		//Grasp grasp = new Grasp();
+		//grasp.solve(instance1);
+		//grasp.calculateGrasp(instance1, PERCENTAGE_CLOSEST_GRASP);
 
 		/*
 		Solution randSolution = new Solution(instance1);
@@ -216,7 +217,7 @@ public class Utils {
 		System.out.println("Tiempo ejecución random: " + randSolution.getTime());
 		*/
 		
-		/*
+		
 		Utils u = new Utils();
 		List<Path> filePaths1 = new ArrayList<Path>();
 		List<Path> filePaths2 = new ArrayList<Path>();
@@ -248,39 +249,42 @@ public class Utils {
 			
 			String nameFile = filePaths.get(i).getFileName().toString();
 
-			//LocalSearch localSearch = new LocalSearch();
-			//Solution lsSolution = localSearch.calculateLocalSearch(instance, solution);
+			LocalSearch localSearch = new LocalSearch();
+			Solution lsSolution = localSearch.calculateLocalSearch(instance, solution);
 			//System.out.println("Búsqueda local: " + lsSolution.getTotalSum());
 			
-			//u.addDataToCSVFile(nameFile, solution, null);
-			u.addDataToCSVFileOneSolution(nameFile, solution);
-			/*
+			u.addDataToCSVFile(nameFile, solution, lsSolution);
+			//u.addDataToCSVFileOneSolution(nameFile, solution);
+			
 			for(int j=0; j<NUMBER_RANDOM; j++) {
 				ArrayList<Client> clients1 = instance.getClientsSortedDescByWeight();
 				Solution randomSolution = new Solution(instance);
 				randomSolution.addRandomFacilitiesToOriginal(instance);
 				randomSolution.calculateSolution(instance, clients1);
 				
-				//LocalSearch localSearchRand = new LocalSearch();
-				//Solution lsRandSolution = localSearchRand.solve(instance, randomSolution);
+				LocalSearch localSearchRand = new LocalSearch();
+				Solution lsRandSolution = localSearchRand.calculateLocalSearch(instance, randomSolution);
 				
-				System.out.println("Tiempo ejecución milisegundos: " + randomSolution.getTime());
-				System.out.println("Sumatorio: " + randomSolution.getTotalSum());
+				//System.out.println("Tiempo ejecución milisegundos: " + randomSolution.getTime());
+				//System.out.println("Sumatorio: " + randomSolution.getTotalSum());
 				
 				String ranNameFile = "Ran" + j + nameFile;
-				//u.addDataToCSVFile(ranNameFile, randomSolution, lsRandSolution);
-				u.addDataToCSVFileOneSolution(ranNameFile, randomSolution);
+				u.addDataToCSVFile(ranNameFile, randomSolution, lsRandSolution);
+				//u.addDataToCSVFileOneSolution(ranNameFile, randomSolution);
 				
 			}
 			for(int k=0; k<NUMBER_GRASP; k++) {
-				ArrayList<Client> clients1 = instance.getClientsSortedDescByWeight();
 				Grasp grasp = new Grasp();
-				Solution graspSolution = grasp.calculateGrasp(instance);
+				Solution graspSolution = grasp.calculateGrasp(instance, PERCENTAGE_CLOSEST_GRASP);
 				
 				String graspNameFile = "Grasp" + k + nameFile;
-				u.addDataToCSVFileOneSolution(graspNameFile, graspSolution);
+				
+				LocalSearch localSearchGrasp = new LocalSearch();
+				Solution lsGraspSolution = localSearchGrasp.calculateLocalSearch(instance, graspSolution);
+				
+				u.addDataToCSVFile(graspNameFile, graspSolution, lsGraspSolution);
 			}
-		}*/
+		}
 		
 	}
 }
