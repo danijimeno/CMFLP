@@ -55,7 +55,7 @@ public class LocalSearch {
 		long endTime = System.nanoTime();
 		long time = endTime - startTime;
 		double executionTime = (double) time/1e6; //ns -> ms
-		System.out.println("Dentro de calculate LS: " + executionTime);
+		//System.out.println("Dentro de calculate LS: " + executionTime);
 		double timeSol = solution.getTime();
 		//total time of the local search is the sum of the constructive plus the time taken for the local search
 		executionTime = executionTime + timeSol;
