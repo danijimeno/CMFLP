@@ -16,44 +16,12 @@ public class Grasp {
 		double minimum = 100000.0;
 		double maximum = 0;
 		double mu = 0;
+		ArrayList<Facility> facsSelectedCL = new ArrayList<Facility>();
+		ArrayList<Solution> candidatesList = new ArrayList<Solution>();
 		
 		Solution auxSolution = new Solution(instance);
 		Solution otherSolution = new Solution(auxSolution);
 		int numPositions = instance.getV();
-		
-		ArrayList<Facility> facsSelectedCL = new ArrayList<Facility>();
-		ArrayList<Solution> candidatesList = new ArrayList<Solution>();
-		/*
-		for (int i = 0; i < facilities.size(); i++) {
-			int pointFacility = auxSolution.getFacilities().get(i).getCurrentPoint();
-			int indexFacility = pointFacility - 1;
-			for (int j = 0; j < numPositions; j++) {
-				ArrayList<Client> clients = instance.getClientsSortedDescByWeight();
-				int newPoint = j + 1;
-				auxSolution.getFacilities().get(i).setCurrentPoint(newPoint);
-				// I uncheck the assigned clients to be able to perform the calculation with the
-				// new point
-				for (Facility fac : auxSolution.getFacilities()) {
-					fac.deleteAllClients();
-				}
-				// calculating the solution with the new facility point
-				auxSolution.calculateSolution(instance, clients);
-
-				System.out.printf(auxSolution.getFacilities().get(i) + ";" + newPoint + ";" + "%.5f %n",
-						auxSolution.getTotalSum());
-
-				for (int k = 0; k < auxSolution.getFacilities().size(); k++) {
-					if (auxSolution.getFacilities().get(k) != auxSolution.getFacilities().get(i)) {
-						auxSolution.getFacilities().get(k).setOriginPoint(0);
-					}
-				}
-				candidatesList.add(auxSolution);
-				auxSolution = new Solution(otherSolution);
-			}
-			System.out.println("***");
-		}
-		auxSolution = new Solution(otherSolution);
-		*/
 
 		int closestNumber = (int) Math.round(numPositions * distancePercentage / 100);
 
@@ -177,20 +145,8 @@ public class Grasp {
 	public Solution selectRandomCandidate(ArrayList<Solution> candidates) {
 		Random random = new Random();
 		int index = random.nextInt(candidates.size());
-		//System.out.println("Indice aleatorio: " + index);
 		Solution solution = candidates.get(index);
 		return solution;
-	}
-	
-	public void imprimirLista(ArrayList<Solution> lista) {
-		int n=0;
-		for(Solution sol: lista) {
-			System.out.print(n + " ");
-			System.out.println(sol.getFacilities());
-			System.out.println(sol.getTotalSum());
-			System.out.println("--------------");
-			n++;
-		}
 	}
 	
 	public Solution calculateGrasp(Instance instance, int distancePercentage) {

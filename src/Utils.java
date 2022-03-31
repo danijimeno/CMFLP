@@ -18,8 +18,8 @@ public class Utils {
 	protected final static String ROUTE2 = "instance\\homogeneous_facilities\\small_C_over_F";
 	protected final static int NUMBER_RANDOM = 100;
 	protected final static int NUMBER_GRASP = 100;
-	protected final static int PERCENTAGE_CLOSEST_GRASP = 30;
-	protected final static String OUTPUT_NAME_FILE = "salida-grasp-" + PERCENTAGE_CLOSEST_GRASP + ".csv";
+	protected final static int PERCENTAGE_CLOSEST_GRASP = 20;
+	protected final static String OUTPUT_NAME_FILE = "salida-grasp-.csv";
 	
 	public void createCSVFile(){
 		String fields = "F.O." + ';' + "Tiempo (s)" + ';' + "Dev (%)" + ';' + "#Best";
