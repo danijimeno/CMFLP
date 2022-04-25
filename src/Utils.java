@@ -154,10 +154,10 @@ public class Utils {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		/*
+		
 		Instance instance1 = new Instance();
-		instance1.readFile("fichero1.txt");
-		//instance1.readFile("pmed1v3.10.2.txt");
+		//instance1.readFile("fichero1.txt");
+		instance1.readFile("pmed1v3.10.2.txt");
 		System.out.println("V: " + instance1.getV());
 		System.out.println("D: " + instance1.getD().length);
 		System.out.println("W: " + instance1.getW().length);
@@ -199,6 +199,11 @@ public class Utils {
 		System.out.println("Búsq Local: " + localSolution.getTotalSum());
 		System.out.println("Tiempo Búsq Local: " + localSolution.getTime());
 		*/
+		TabuSearch tabu = new TabuSearch();
+		tabu.solve(instance1, initialSolution);
+		Solution tabuSolution = tabu.calculateTabuSearch(instance1, initialSolution);
+		System.out.println("Búsq Tabu: " + tabuSolution.getTotalSum());
+		System.out.println("Tiempo Búsq Tabu: " + tabuSolution.getTime());
 		//Grasp grasp = new Grasp();
 		//grasp.solve(instance1);
 		//grasp.calculateGrasp(instance1, PERCENTAGE_CLOSEST_GRASP);
@@ -217,7 +222,7 @@ public class Utils {
 		System.out.println("Tiempo ejecución random: " + randSolution.getTime());
 		*/
 		
-		
+		/*
 		Utils u = new Utils();
 		List<Path> filePaths1 = new ArrayList<Path>();
 		List<Path> filePaths2 = new ArrayList<Path>();
@@ -284,7 +289,7 @@ public class Utils {
 				
 				u.addDataToCSVFile(graspNameFile, graspSolution, lsGraspSolution);
 			}
-		}
+		}*/
 		
 	}
 }
