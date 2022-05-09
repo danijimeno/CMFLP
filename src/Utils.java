@@ -19,7 +19,7 @@ public class Utils {
 	protected final static int NUMBER_RANDOM = 100;
 	protected final static int NUMBER_GRASP = 100;
 	protected final static int PERCENTAGE_CLOSEST_GRASP = 20;
-	protected final static String OUTPUT_NAME_FILE = "salida-grasp-.csv";
+	protected final static String OUTPUT_NAME_FILE = "salida-grasp-tabu.csv";
 	
 	public void createCSVFile(){
 		String fields = "F.O." + ';' + "Tiempo (s)" + ';' + "Dev (%)" + ';' + "#Best";
@@ -33,7 +33,7 @@ public class Utils {
 			pw.println("Búsqueda local");
 			pw.println();
 			pw.println();
-			pw.println("" + ';' + "Constructivo" + ';'+ ';'+ ';'+ ';' + "Búsqueda Local");
+			pw.println("" + ';' + "Constructivo" + ';'+ ';'+ ';'+ ';' + "Búsqueda Tabu");
 			pw.print("Nombre de la instancia" + ";" + fields + ';' + fields + ';');
 			pw.println("" + ';' + "Best");
 			pw.flush();
@@ -156,8 +156,8 @@ public class Utils {
 		// TODO Auto-generated method stub
 		/*
 		Instance instance1 = new Instance();
-		instance1.readFile("fichero1.txt");
-		//instance1.readFile("pmed1v3.10.2.txt");
+		//instance1.readFile("fichero1.txt");
+		instance1.readFile("pmed1v3.10.2.txt");
 		System.out.println("V: " + instance1.getV());
 		System.out.println("D: " + instance1.getD().length);
 		System.out.println("W: " + instance1.getW().length);
@@ -199,6 +199,12 @@ public class Utils {
 		System.out.println("Búsq Local: " + localSolution.getTotalSum());
 		System.out.println("Tiempo Búsq Local: " + localSolution.getTime());
 		*/
+		/*
+		TabuSearch tabu = new TabuSearch();
+		tabu.solve(instance1, initialSolution);
+		Solution tabuSolution = tabu.calculateTabuSearch(instance1, initialSolution);
+		System.out.println("Búsq Tabu: " + tabuSolution.getTotalSum());
+		System.out.println("Tiempo Búsq Tabu: " + tabuSolution.getTime());
 		//Grasp grasp = new Grasp();
 		//grasp.solve(instance1);
 		//grasp.calculateGrasp(instance1, PERCENTAGE_CLOSEST_GRASP);
@@ -248,41 +254,51 @@ public class Utils {
 			System.out.println("Sumatorio: " + solution.getTotalSum());
 			
 			String nameFile = filePaths.get(i).getFileName().toString();
-
+			
+			/*
 			LocalSearch localSearch = new LocalSearch();
 			Solution lsSolution = localSearch.calculateLocalSearch(instance, solution);
 			//System.out.println("Búsqueda local: " + lsSolution.getTotalSum());
+			*/
+			TabuSearch tabuSearch = new TabuSearch();
+			Solution tabuSolution = tabuSearch.calculateTabuSearch(instance, solution);
+			System.out.println("Búsq Tabu: " + tabuSolution.getTotalSum());
 			
-			u.addDataToCSVFile(nameFile, solution, lsSolution);
+			u.addDataToCSVFile(nameFile, solution, tabuSolution);
 			//u.addDataToCSVFileOneSolution(nameFile, solution);
-			
+			/*
 			for(int j=0; j<NUMBER_RANDOM; j++) {
 				ArrayList<Client> clients1 = instance.getClientsSortedDescByWeight();
 				Solution randomSolution = new Solution(instance);
 				randomSolution.addRandomFacilitiesToOriginal(instance);
 				randomSolution.calculateSolution(instance, clients1);
-				
+				/*
 				LocalSearch localSearchRand = new LocalSearch();
 				Solution lsRandSolution = localSearchRand.calculateLocalSearch(instance, randomSolution);
 				
 				//System.out.println("Tiempo ejecución milisegundos: " + randomSolution.getTime());
 				//System.out.println("Sumatorio: " + randomSolution.getTotalSum());
+				TabuSearch tabuSearchRand = new TabuSearch();
+				Solution tabuSRandSolution = tabuSearchRand.calculateTabuSearch(instance, randomSolution);
 				
 				String ranNameFile = "Ran" + j + nameFile;
-				u.addDataToCSVFile(ranNameFile, randomSolution, lsRandSolution);
+				u.addDataToCSVFile(ranNameFile, randomSolution, tabuSRandSolution);
 				//u.addDataToCSVFileOneSolution(ranNameFile, randomSolution);
 				
-			}
+			}*/
 			for(int k=0; k<NUMBER_GRASP; k++) {
 				Grasp grasp = new Grasp();
 				Solution graspSolution = grasp.calculateGrasp(instance, PERCENTAGE_CLOSEST_GRASP);
 				
 				String graspNameFile = "Grasp" + k + nameFile;
-				
+				/*
 				LocalSearch localSearchGrasp = new LocalSearch();
 				Solution lsGraspSolution = localSearchGrasp.calculateLocalSearch(instance, graspSolution);
+				*/
+				TabuSearch tabuSearchGrasp = new TabuSearch();
+				Solution graspTabuSolution = tabuSearchGrasp.calculateTabuSearch(instance, graspSolution);
 				
-				u.addDataToCSVFile(graspNameFile, graspSolution, lsGraspSolution);
+				u.addDataToCSVFile(graspNameFile, graspSolution, graspTabuSolution);
 			}
 		}
 		
