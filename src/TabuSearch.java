@@ -6,6 +6,7 @@ import java.util.Queue;
 public class TabuSearch {	
 	
 	private final int MAX_ITERATIONS = 3;
+	private final double PERCENTAGE_NODES_CHOOSE = 0.3;
 
 	public Solution solve(Instance instance, Solution solution) {
 		boolean facilityContainsThisPoint = false;
@@ -15,10 +16,9 @@ public class TabuSearch {
 		int numPosition = instance.getV();
 		//ArrayList<Client> clients = instance.getClientsSortedDescByWeight();
 		int numFacilities = solution.getFacilities().size();
-		int queueSize = (int) Math.round(numFacilities * 0.3);
-		System.out.println("Tamaño de la cola Tabu " + queueSize);
+		int queueSize = (int) Math.round(numFacilities * PERCENTAGE_NODES_CHOOSE);
 		int iteration = 0;
-		Queue<Facility> cola = new LinkedList<Facility>();
+		Queue<Facility> tabuQueue = new LinkedList<Facility>();
 		boolean foundBetterSolution = false;
 		
 		while(iteration != MAX_ITERATIONS) {
@@ -28,13 +28,12 @@ public class TabuSearch {
 				Facility facility = auxSolution.getFacilities().get(i);
 				int pointFacility = auxSolution.getFacilities().get(i).getCurrentPoint();
 				int indexFacility = pointFacility - 1;
-				if (this.containsFacility(cola, facility)) {
+				if (this.containsFacility(tabuQueue, facility)) {
 					continue;
 				}
 				for(int j=0; j<numPosition; j++) {
 					if(indexFacility != j) {
 						int newPoint = j + 1;
-						System.out.println("Punto: " + newPoint);
 						for(int k=0; k<auxSolution.getFacilities().size(); k++) {
 							if(auxSolution.getFacilities().get(k).getCurrentPoint() == newPoint) {
 								facilityContainsThisPoint = true;
@@ -46,8 +45,6 @@ public class TabuSearch {
 							continue;
 						}else {
 							auxSolution.getFacilities().get(i).setCurrentPoint(newPoint);
-							System.out.println("Facility a probar");
-							System.out.println(auxSolution.getFacilities().get(i));
 							//I uncheck the assigned clients to be able to perform the calculation with the new point
 							for(Facility fac: auxSolution.getFacilities()) {
 								fac.deleteAllClients();
@@ -55,41 +52,21 @@ public class TabuSearch {
 							//calculating the solution with the new facility point
 							ArrayList<Client> clients = instance.getClientsSortedDescByWeight();
 							auxSolution.calculateSolution(instance, clients);
-							
-							System.out.println("AUX Sol: " + auxSolution.getTotalSum());
-							System.out.println("BEST Sol: " + bestAuxSolution.getTotalSum());
+
 							//compare solutions
 							if(auxSolution.getTotalSum() < bestAuxSolution.getTotalSum()) {
-								System.out.println("AUX Sol: " + auxSolution.getTotalSum());
-								System.out.println("BEST Sol: " + bestAuxSolution.getTotalSum());
 								bestAuxSolution = new Solution(auxSolution);
 								Facility facility2 = auxSolution.getFacilities().get(i);
-								System.out.println("Facility " + facility2);
-								if(cola.size()==queueSize) {
-									cola.remove();
+								if(tabuQueue.size()==queueSize) {
+									tabuQueue.remove();
 								}
-								cola.add(auxSolution.getFacilities().get(i));
-								System.out.println("Cola ");
-								System.out.println(cola);
+								tabuQueue.add(auxSolution.getFacilities().get(i));
 								foundBetterSolution = true;
 								break;
 							} 
 							else {
 								if(auxSolution.getTotalSum() < bestOfWorstsSolution.getTotalSum()) {
-									System.out.println("Worst Sol: " + bestOfWorstsSolution.getTotalSum());
 									bestOfWorstsSolution = new Solution(auxSolution);
-									Facility facility2 = auxSolution.getFacilities().get(i);
-									System.out.println("---La mejor de las peores---");
-									System.out.println("sol " + bestOfWorstsSolution);
-									/*
-									if(cola.size()==1) {
-										cola.remove();
-									}
-									cola.add(auxSolution.getFacilities().get(i));
-									*/
-									System.out.println("Cola ");
-									System.out.println(cola);
-									System.out.println("-----");
 								}
 							}
 						}
@@ -118,11 +95,8 @@ public class TabuSearch {
 			foundBetterSolution = false;
 		}
 		
-		System.out.println("Resultado ");
-		System.out.println(bestAuxSolution);
 		//cambiar por auxSolution para contemplar el caso de la mejor de las peores
-		System.out.println("Salida ");
-		System.out.println(auxSolution);
+
 		return auxSolution;
 	}
 	
