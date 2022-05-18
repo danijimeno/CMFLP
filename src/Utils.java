@@ -19,10 +19,10 @@ public class Utils {
 	protected final static int NUMBER_RANDOM = 100;
 	protected final static int NUMBER_GRASP = 100;
 	protected final static int PERCENTAGE_CLOSEST_GRASP = 20;
-	protected final static String OUTPUT_NAME_FILE = "salida-grasp-tabu.csv";
+	protected final static String OUTPUT_NAME_FILE = "salida-lsts-test.csv";
 	
 	public void createCSVFile(){
-		String fields = "F.O." + ';' + "Tiempo (s)" + ';' + "Dev (%)" + ';' + "#Best";
+		String fields = "F.O." + ';' + "Tiempo (s)" + ';' + "Dev (%)" + ';' + "#Best" + ';';
 		FileWriter w = null;
 		PrintWriter pw = null;
 		try {
@@ -33,8 +33,8 @@ public class Utils {
 			pw.println("Búsqueda local");
 			pw.println();
 			pw.println();
-			pw.println("" + ';' + "Constructivo" + ';'+ ';'+ ';'+ ';' + "Búsqueda Tabu");
-			pw.print("Nombre de la instancia" + ";" + fields + ';' + fields + ';');
+			pw.println("" + ';' + "Constructivo" + ';'+ ';'+ ';'+ ';' + "Búsqueda Local" + ';'+ ';'+ ';'+ ';' + "Búsqueda Tabu");
+			pw.print("Nombre de la instancia" + ";" + fields + fields + fields);
 			pw.println("" + ';' + "Best");
 			pw.flush();
 		} catch (FileNotFoundException ex) {
@@ -126,6 +126,43 @@ public class Utils {
 	    }
 	}
 	
+	public void addDataToCSVFileThreeSolutions(String name, Solution solution, Solution localSearchSol, Solution tabuSearchSol) {
+		FileWriter w = null;
+		PrintWriter pw = null;
+		Solution bestAuxSolution = solution.whichIsBetter(localSearchSol);
+		Solution bestSolution = tabuSearchSol.whichIsBetter(bestAuxSolution);
+		try {
+			w = new FileWriter(OUTPUT_NAME_FILE, true);
+			pw = new PrintWriter(w);
+			pw.print(name);
+			pw.print(";");
+			this.printMetrics(pw, solution, bestSolution);
+			this.printMetrics(pw, localSearchSol, bestSolution);
+			this.printMetrics(pw, tabuSearchSol, bestSolution);
+			pw.print("");
+			pw.print(";");
+			pw.printf("%.5f", bestSolution.getTotalSum());
+			pw.println();
+			pw.flush();
+		} catch (FileNotFoundException ex) {
+			System.err.println("El fichero no se puede editar");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.err.println("Error al escribir en fichero");
+		} finally {
+	        try {
+	            if (w != null)
+	                w.close();
+	            if (pw != null)
+	                pw.close();
+	        } catch (IOException ex2) {
+	        	System.err.println("ERROR al cerrar el fichero");
+	            ex2.printStackTrace();
+	        }
+	    }
+	}
+	
 	public void printMetrics(PrintWriter pw, Solution solution, Solution bestSolution) {
 		pw.printf("%.5f", solution.getTotalSum());
 		pw.print(";");
@@ -150,6 +187,36 @@ public class Utils {
 			throw e.getCause();
 		}
 		return result;
+	}
+	
+	public Solution theBestSolutionOfAll(ArrayList<Solution> solutions) {
+		double minimum = 1000000;
+		Solution bestSolution = null;
+		for(int i=0; i<solutions.size(); i++) {
+			if(solutions.get(i).getTotalSum() < minimum) {
+				minimum = solutions.get(i).getTotalSum();
+				bestSolution = solutions.get(i);
+			}
+		}
+		for(int i=0; i<solutions.size(); i++) {
+			if(solutions.get(i).getTotalSum() == bestSolution.getTotalSum()) {
+				System.out.println("RGBT " + i + "--" + bestSolution.getTotalSum());
+			}
+		}
+		/*
+		double minium = solutions.stream().mapToDouble(Solution::getTotalSum).min().getAsDouble();
+		System.out.println("Minimo Ran: " + minium);
+		Solution bestRandSol = solutions.stream().filter(solu -> solu.getTotalSum() == minium)
+				.collect(Collectors.toList()).get(0);
+		System.out.println("Min: " + bestRandSol.getTotalSum());
+		*/
+		return bestSolution;
+	}
+	
+	public double totalTimeOfAllSolutions(ArrayList<Solution> solutions) {
+		return solutions.stream()
+				.mapToDouble(Solution::getTime)
+				.sum();
 	}
 
 	public static void main(String[] args) {
@@ -241,8 +308,16 @@ public class Utils {
 
 		u.createCSVFile();
 		
-		for(int i=0; i<filePaths.size(); i++) {
-			Instance instance = new Instance();
+		ArrayList<Instance> instances = new ArrayList<>(); 
+		for(int i=0; i<filePaths.size(); i++) { 
+			Instance ins = new Instance(); 
+			instances.add(ins); 
+		} 
+		
+		ArrayList<Solution> solutions = new ArrayList<>();
+		
+		for(int i=0; i<instances.size(); i++) {
+			Instance instance = instances.get(i);
 			String pathFile = filePaths.get(i).toString();
 			instance.readFile(pathFile);
 			ArrayList<Client> clients = instance.getClientsSortedDescByWeight();
@@ -255,52 +330,122 @@ public class Utils {
 			
 			String nameFile = filePaths.get(i).getFileName().toString();
 			
-			/*
+			solutions.add(solution);
+			
 			LocalSearch localSearch = new LocalSearch();
 			Solution lsSolution = localSearch.calculateLocalSearch(instance, solution);
-			//System.out.println("Búsqueda local: " + lsSolution.getTotalSum());
-			*/
-			TabuSearch tabuSearch = new TabuSearch();
-			Solution tabuSolution = tabuSearch.calculateTabuSearch(instance, solution);
-			System.out.println("Búsq Tabu: " + tabuSolution.getTotalSum());
 			
-			u.addDataToCSVFile(nameFile, solution, tabuSolution);
-			//u.addDataToCSVFileOneSolution(nameFile, solution);
-			/*
-			for(int j=0; j<NUMBER_RANDOM; j++) {
+			TabuSearch tabuSearch = new TabuSearch();
+			Solution tabuSolution = tabuSearch.calculateTabuSearch(instance, solution);	
+			//u.addDataToCSVFile(nameFile, solution, tabuSolution);
+			
+			u.addDataToCSVFileThreeSolutions(nameFile, solution, lsSolution, tabuSolution);
+			
+		}
+		
+		for (int i = 0; i < instances.size(); i++) {
+			Instance instance = instances.get(i);
+			String pathFile = filePaths.get(i).toString();
+			instance.readFile(pathFile);
+			String nameFile = filePaths.get(i).getFileName().toString();
+			
+			ArrayList<Solution> randSolutions = new ArrayList<>();
+			ArrayList<Solution> randLocalSearchSols = new ArrayList<>();
+			ArrayList<Solution> randTabuSearchSols = new ArrayList<>();
+			for (int j = 0; j < NUMBER_RANDOM; j++) {
 				ArrayList<Client> clients1 = instance.getClientsSortedDescByWeight();
 				Solution randomSolution = new Solution(instance);
 				randomSolution.addRandomFacilitiesToOriginal(instance);
 				randomSolution.calculateSolution(instance, clients1);
-				/*
+
+				randSolutions.add(randomSolution);
+
 				LocalSearch localSearchRand = new LocalSearch();
 				Solution lsRandSolution = localSearchRand.calculateLocalSearch(instance, randomSolution);
-				
-				//System.out.println("Tiempo ejecución milisegundos: " + randomSolution.getTime());
-				//System.out.println("Sumatorio: " + randomSolution.getTotalSum());
+				randLocalSearchSols.add(lsRandSolution);
+
 				TabuSearch tabuSearchRand = new TabuSearch();
-				Solution tabuSRandSolution = tabuSearchRand.calculateTabuSearch(instance, randomSolution);
-				
-				String ranNameFile = "Ran" + j + nameFile;
-				u.addDataToCSVFile(ranNameFile, randomSolution, tabuSRandSolution);
-				//u.addDataToCSVFileOneSolution(ranNameFile, randomSolution);
-				
-			}*/
-			for(int k=0; k<NUMBER_GRASP; k++) {
-				Grasp grasp = new Grasp();
-				Solution graspSolution = grasp.calculateGrasp(instance, PERCENTAGE_CLOSEST_GRASP);
-				
-				String graspNameFile = "Grasp" + k + nameFile;
-				/*
-				LocalSearch localSearchGrasp = new LocalSearch();
-				Solution lsGraspSolution = localSearchGrasp.calculateLocalSearch(instance, graspSolution);
-				*/
-				TabuSearch tabuSearchGrasp = new TabuSearch();
-				Solution graspTabuSolution = tabuSearchGrasp.calculateTabuSearch(instance, graspSolution);
-				
-				u.addDataToCSVFile(graspNameFile, graspSolution, graspTabuSolution);
+				Solution tabusRandSol = tabuSearchRand.calculateTabuSearch(instance, randomSolution);
+				randTabuSearchSols.add(tabusRandSol);
+
 			}
+			Solution bestRandSolution = u.theBestSolutionOfAll(randSolutions);
+			double totalTimeRand = u.totalTimeOfAllSolutions(randSolutions);
+			bestRandSolution.setTime(u.totalTimeOfAllSolutions(randSolutions));
+
+			int indexBestRandSol = randSolutions.indexOf(bestRandSolution);
+			System.out.println("Indice de la mejor solucion ALEATORIA " + indexBestRandSol);
+
+			Solution bestLsRandSol = randLocalSearchSols.get(indexBestRandSol);
+			bestLsRandSol.setTime(u.totalTimeOfAllSolutions(randLocalSearchSols));
+
+			Solution bestTabuRandSol = randTabuSearchSols.get(indexBestRandSol);
+			bestTabuRandSol.setTime(u.totalTimeOfAllSolutions(randTabuSearchSols));
+
+			String ranNameFile = "Ran" + indexBestRandSol + nameFile;
+
+			// u.addDataToCSVFile(ranNameFile, bestRandSolution, bestLsRandSol);
+			u.addDataToCSVFileThreeSolutions(ranNameFile, bestRandSolution, bestLsRandSol, bestTabuRandSol);
+
 		}
 		
+		for (int i = 0; i < instances.size(); i++) {
+			Instance instance = instances.get(i);
+			String pathFile = filePaths.get(i).toString();
+			instance.readFile(pathFile);
+			String nameFile = filePaths.get(i).getFileName().toString();
+
+			ArrayList<Solution> graspSolutions = new ArrayList<>();
+			ArrayList<Solution> graspLocalSols = new ArrayList<>();
+			ArrayList<Solution> graspTabuSols = new ArrayList<>();
+			for (int k = 0; k < NUMBER_GRASP; k++) {
+				Grasp grasp = new Grasp();
+				Solution graspSolution = grasp.calculateGrasp(instance, PERCENTAGE_CLOSEST_GRASP);
+
+				graspSolutions.add(graspSolution);
+
+				LocalSearch localSearchGrasp = new LocalSearch();
+				Solution lsGraspSolution = localSearchGrasp.calculateLocalSearch(instance, graspSolution);
+				graspLocalSols.add(lsGraspSolution);
+
+				TabuSearch tabuSearchGrasp = new TabuSearch();
+				Solution graspTabuSolution = tabuSearchGrasp.calculateTabuSearch(instance, graspSolution);
+				graspTabuSols.add(graspTabuSolution);
+			}
+			Solution bestGraspSolution = u.theBestSolutionOfAll(graspSolutions);
+			bestGraspSolution.setTime(u.totalTimeOfAllSolutions(graspSolutions));
+
+			int indexBestGraspSol = graspSolutions.indexOf(bestGraspSolution);
+			System.out.println("Indice de la mejor solucion GRASP " + indexBestGraspSol);
+
+			Solution bestLsGraspSol = graspLocalSols.get(indexBestGraspSol);
+			bestLsGraspSol.setTime(u.totalTimeOfAllSolutions(graspLocalSols));
+
+			Solution bestTabuGraspSol = graspTabuSols.get(indexBestGraspSol);
+			bestTabuGraspSol.setTime(u.totalTimeOfAllSolutions(graspTabuSols));
+
+			String graspNameFile = "Grasp" + indexBestGraspSol + nameFile;
+
+			// u.addDataToCSVFile(graspNameFile, bestGraspSolution, bestLsGraspSol);
+			u.addDataToCSVFileThreeSolutions(graspNameFile, bestGraspSolution, bestLsGraspSol, bestTabuGraspSol);
+		}
+			/*
+			for(int l=0; l<randSolutions.size(); l++) {
+				Solution randSol = randSolutions.get(l);
+				String ranNameFile = "RanTS" + l + nameFile;
+				TabuSearch tabuSearchRand = new TabuSearch();
+				Solution tabusRandSol = tabuSearchRand.calculateTabuSearch(instance, randSol);
+				u.addDataToCSVFile(ranNameFile, randSol, tabusRandSol);
+			}
+			/*
+			for(int m=0; m<graspSolutions.size(); m++) {
+				Solution graspSol = graspSolutions.get(m);
+				String graspNameFile = "GraspTS" + m + nameFile;
+				TabuSearch tabuSearchGrasp = new TabuSearch();
+				Solution tabuGraspSol = tabuSearchGrasp.calculateTabuSearch(instance, graspSol);
+				
+				u.addDataToCSVFile(graspNameFile, graspSol, tabuGraspSol);
+			}
+			*/
 	}
 }
