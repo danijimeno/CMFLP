@@ -4,7 +4,20 @@ import java.util.Random;
 
 public class Grasp {
 	
-	final double ALFA = 0.5;
+	private double alpha;
+	
+	
+	public Grasp(double alpha) {
+		this.alpha = alpha;
+	}
+
+	public double getAlpha() {
+		return alpha;
+	}
+
+	public void setAlpha(double alpha) {
+		this.alpha = alpha;
+	}
 
 	public Solution solve(Instance instance, int distancePercentage) {
 		int[][] d = instance.getD();
@@ -111,7 +124,7 @@ public class Grasp {
 				}
 			}
 			
-			mu = minimum + ALFA * (maximum - minimum);
+			mu = minimum + this.alpha * (maximum - minimum);
 			
 			ArrayList<Solution> restrictedCandidatesList = new ArrayList<Solution>();
 			for(int i=0; i<candidatesList.size(); i++) {
@@ -204,5 +217,12 @@ public class Grasp {
 				}
 			}
 		}
+	}
+	
+	public double generateRamdonAlpha() {
+		Random random = new Random();
+		double alpha = random.nextDouble();
+		System.out.println("Valor de ALFA: " + alpha);
+		return alpha;
 	}
 }

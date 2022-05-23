@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,7 +20,7 @@ public class Utils {
 	protected final static int NUMBER_RANDOM = 100;
 	protected final static int NUMBER_GRASP = 100;
 	protected final static int PERCENTAGE_CLOSEST_GRASP = 20;
-	protected final static String OUTPUT_NAME_FILE = "salida-lsts-test.csv";
+	protected final static String OUTPUT_NAME_FILE = "salida-grlsts-test.csv";
 	
 	public void createCSVFile(){
 		String fields = "F.O." + ';' + "Tiempo (s)" + ';' + "Dev (%)" + ';' + "#Best" + ';';
@@ -30,10 +31,10 @@ public class Utils {
 			pw = new PrintWriter(w);
 			pw.println(';' + fields);
 			pw.println("Constructivo");
-			pw.println("Búsqueda local");
+			pw.println("Bï¿½squeda local");
 			pw.println();
 			pw.println();
-			pw.println("" + ';' + "Constructivo" + ';'+ ';'+ ';'+ ';' + "Búsqueda Local" + ';'+ ';'+ ';'+ ';' + "Búsqueda Tabu");
+			pw.println("" + ';' + "Constructivo" + ';'+ ';'+ ';'+ ';' + "Bï¿½squeda Local" + ';'+ ';'+ ';'+ ';' + "Bï¿½squeda Tabu");
 			pw.print("Nombre de la instancia" + ";" + fields + fields + fields);
 			pw.println("" + ';' + "Best");
 			pw.flush();
@@ -190,6 +191,7 @@ public class Utils {
 	}
 	
 	public Solution theBestSolutionOfAll(ArrayList<Solution> solutions) {
+		/*
 		double minimum = 1000000;
 		Solution bestSolution = null;
 		for(int i=0; i<solutions.size(); i++) {
@@ -198,18 +200,19 @@ public class Utils {
 				bestSolution = solutions.get(i);
 			}
 		}
+		/*
 		for(int i=0; i<solutions.size(); i++) {
 			if(solutions.get(i).getTotalSum() == bestSolution.getTotalSum()) {
 				System.out.println("RGBT " + i + "--" + bestSolution.getTotalSum());
 			}
 		}
-		/*
+		*/
 		double minium = solutions.stream().mapToDouble(Solution::getTotalSum).min().getAsDouble();
 		System.out.println("Minimo Ran: " + minium);
-		Solution bestRandSol = solutions.stream().filter(solu -> solu.getTotalSum() == minium)
+		Solution bestSolution = solutions.stream().filter(solu -> solu.getTotalSum() == minium)
 				.collect(Collectors.toList()).get(0);
-		System.out.println("Min: " + bestRandSol.getTotalSum());
-		*/
+		//System.out.println("Min: " + bestSolution.getTotalSum());
+		
 		return bestSolution;
 	}
 	
@@ -263,15 +266,15 @@ public class Utils {
 		/*
 		LocalSearch ls = new LocalSearch();
 		Solution localSolution = ls.calculateLocalSearch(instance1, initialSolution);
-		System.out.println("Búsq Local: " + localSolution.getTotalSum());
-		System.out.println("Tiempo Búsq Local: " + localSolution.getTime());
+		System.out.println("Bï¿½sq Local: " + localSolution.getTotalSum());
+		System.out.println("Tiempo Bï¿½sq Local: " + localSolution.getTime());
 		*/
 		/*
 		TabuSearch tabu = new TabuSearch();
 		tabu.solve(instance1, initialSolution);
 		Solution tabuSolution = tabu.calculateTabuSearch(instance1, initialSolution);
-		System.out.println("Búsq Tabu: " + tabuSolution.getTotalSum());
-		System.out.println("Tiempo Búsq Tabu: " + tabuSolution.getTime());
+		System.out.println("Bï¿½sq Tabu: " + tabuSolution.getTotalSum());
+		System.out.println("Tiempo Bï¿½sq Tabu: " + tabuSolution.getTime());
 		//Grasp grasp = new Grasp();
 		//grasp.solve(instance1);
 		//grasp.calculateGrasp(instance1, PERCENTAGE_CLOSEST_GRASP);
@@ -287,7 +290,7 @@ public class Utils {
 		System.out.println(clientes1);
 		
 		System.out.println("Sumatorio Solucion random: " + randSolution.getTotalSum());
-		System.out.println("Tiempo ejecución random: " + randSolution.getTime());
+		System.out.println("Tiempo ejecuciï¿½n random: " + randSolution.getTime());
 		*/
 		
 		
@@ -313,7 +316,7 @@ public class Utils {
 			Instance ins = new Instance(); 
 			instances.add(ins); 
 		} 
-		
+		/*
 		ArrayList<Solution> solutions = new ArrayList<>();
 		
 		for(int i=0; i<instances.size(); i++) {
@@ -325,7 +328,7 @@ public class Utils {
 			Solution solution = new Solution(instance);
 			solution.calculateSolution(instance, clients);
 			
-			System.out.println("Tiempo ejecución milisegundos: " + solution.getTime());
+			System.out.println("Tiempo ejecuciï¿½n milisegundos: " + solution.getTime());
 			System.out.println("Sumatorio: " + solution.getTotalSum());
 			
 			String nameFile = filePaths.get(i).getFileName().toString();
@@ -388,6 +391,10 @@ public class Utils {
 			u.addDataToCSVFileThreeSolutions(ranNameFile, bestRandSolution, bestLsRandSol, bestTabuRandSol);
 
 		}
+		*/
+		Random random = new Random();
+		double alpha = random.nextDouble();
+		System.out.println("Valor de ALFA: " + alpha);
 		
 		for (int i = 0; i < instances.size(); i++) {
 			Instance instance = instances.get(i);
@@ -398,8 +405,9 @@ public class Utils {
 			ArrayList<Solution> graspSolutions = new ArrayList<>();
 			ArrayList<Solution> graspLocalSols = new ArrayList<>();
 			ArrayList<Solution> graspTabuSols = new ArrayList<>();
+			
 			for (int k = 0; k < NUMBER_GRASP; k++) {
-				Grasp grasp = new Grasp();
+				Grasp grasp = new Grasp(alpha);
 				Solution graspSolution = grasp.calculateGrasp(instance, PERCENTAGE_CLOSEST_GRASP);
 
 				graspSolutions.add(graspSolution);
